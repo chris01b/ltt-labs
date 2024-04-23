@@ -1,7 +1,7 @@
 # Node modules
 node_modules/
 
-# Dist directory
+# Dist directory and all its contents
 dist/
 
 # Environment variables
@@ -50,7 +50,7 @@ jspm_packages/
 .env.test.local
 .env.production.local
 
-# parcel-bundler cache (https://parceljs.org/)
+# parcel-bundler cache
 .cache
 .parcel-cache
 
@@ -60,7 +60,6 @@ out/
 
 # Nuxt.js build / generate output
 .nuxt
-dist/
 
 # Gatsby files
 .cache/
@@ -72,18 +71,10 @@ public/
 # Serverless directories
 .serverless/
 
-# Compiled TypeScript files if not output to dist
-*.js
-*.jsx
-*.ts
-*.tsx
-*.d.ts
-
-# Optional TypeScript cache
-*.tsbuildinfo
-
-# TypeScript compiled output for specific setups that don't use /dist
-/build/
-/lib/
-/out/
+# Ignore compiled JavaScript files, source maps, and definition files in src
+src/**/*.js
+src/**/*.jsx
+src/**/*.d.ts
+src/**/*.js.map
+src/**/*.jsx.map
 
