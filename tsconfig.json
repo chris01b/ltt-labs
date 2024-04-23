@@ -108,7 +108,7 @@
   },
   "include": [
     "src/**/*"
-  ],
+, "jest-puppeteer.config.js"  ],
   "exclude": [
     "node_modules",
     "dist"

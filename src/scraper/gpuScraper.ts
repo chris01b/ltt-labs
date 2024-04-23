@@ -29,7 +29,7 @@ async function fetchHTML(url: string): Promise<string> {
  * @param html The HTML content as a string.
  * @returns An array of GPUData objects.
  */
-async function extractGPUData(html: string): Promise<GPUData[]> {
+export async function extractGPUData(html: string): Promise<GPUData[]> {
     const gpuList: GPUData[] = [];
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
