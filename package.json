@@ -2,14 +2,21 @@
   "name": "ltt-labs",
   "version": "0.1.0",
   "description": "Scalable LTT Labs Scraper",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node .",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
   },
   "author": "chris01b",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/chris01b/ltt-labs.git"
+    "type": "git",
+    "url": "https://github.com/chris01b/ltt-labs.git"
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
-  "license": "SEE LICENSE IN LICENSE.md"
 }
