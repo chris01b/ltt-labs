@@ -4,7 +4,7 @@
   "description": "Scalable LTT Labs Scraper",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p config/tsconfig.json",
     "start": "node .",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "test": "jest --config ./config/jest.config.js"
