@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer';
 
+// TODO: Pass this down
 export async function initializeBrowser(headless: boolean = true) {
     return puppeteer.launch({ headless });
 }

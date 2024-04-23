@@ -1,5 +1,4 @@
-import puppeteer from 'puppeteer';
-import { fetchHTML } from './utils';
+import { fetchHTML, initializeBrowser } from './utils';
 import { GPUData } from './types';
 
 const BASE_URL = 'https://www.lttlabs.com/categories/graphics-cards';
@@ -10,7 +9,7 @@ const BASE_URL = 'https://www.lttlabs.com/categories/graphics-cards';
  * @returns An array of GPUData objects.
  */
 export async function extractGPUData(html: string): Promise<GPUData[]> {
-    const browser = await puppeteer.launch();
+    const browser = await initializeBrowser();
     const page = await browser.newPage();
     await page.setContent(html);
     const gpuElements = await page.$$('a[data-testid="article-card"]');

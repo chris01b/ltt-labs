@@ -5,10 +5,10 @@ export interface GPUData {
 
 export interface GPUProductDetails {
     overview: string;
-    goodPoints: string[];
-    badPoints: string[];
-    otherPoints: string[];
-    links: string[];
+    goodPoints: string[] | undefined;
+    badPoints: string[] | undefined;
+    otherPoints: string[] | undefined;
+    links: string[] | undefined;
     hardwareSummary: string;
     inTheBox: { images: string[], items: string[] };
     graphicsProcessorSpecs: Record<string, string>;
@@ -32,5 +32,6 @@ export interface GPUProductDetails {
     testConfiguration: {
         summary: string;
         testBench: Record<string, string>;
+        testedSettings: string;
     }
 }
