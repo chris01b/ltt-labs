@@ -6,7 +6,7 @@ export interface GPUData {
 export type LinkDetails = Record<string, string>;
 
 export interface GPUProductDetails {
-    overview: string;
+    overview: string | null;
     goodPoints: string[] | undefined;
     badPoints: string[] | undefined;
     otherPoints: string[] | undefined;

@@ -2,6 +2,7 @@ import { fetchHTML, initializeBrowser } from '../utils';
 import { GPUProductDetails } from '../types';
 import { parseWhatYouNeedToKnow } from './whatYouNeedToKnow';
 import { parseLinks } from './links';
+import { parseOverview } from './overview';
 
 /**
  * Fetches and extracts detailed information about GPUs from their respective detail pages.
@@ -16,15 +17,16 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
     const page = await browser.newPage();
     await page.setContent(content);
 
-    const [whatYouNeedToKnow, links] = await Promise.all([
+    const [whatYouNeedToKnow, links, overview] = await Promise.all([
         parseWhatYouNeedToKnow(page),
-        parseLinks(page)
+        parseLinks(page),
+        parseOverview(page)
     ]);
 
     await browser.close();
 
     return {
-        overview: "",
+        overview: overview,
         goodPoints: whatYouNeedToKnow.goodPoints,
         badPoints: whatYouNeedToKnow.badPoints,
         otherPoints: whatYouNeedToKnow.otherPoints,
