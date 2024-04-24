@@ -13,7 +13,8 @@ export async function fetchHTML(url: string, userAgent: string = 'Mozilla/5.0 (W
     const browser = await initializeBrowser();
     const page = await browser.newPage();
     await page.setUserAgent(userAgent);
-    await page.goto(url, { waitUntil: 'networkidle0' });
+    const response = await page.goto(url, { waitUntil: 'networkidle0' });
+    if (!response) throw new Error('No response from the server.');
     const content = await page.content();
     await browser.close();
     return content;
