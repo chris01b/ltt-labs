@@ -15,27 +15,25 @@ export async function parseWhatYouNeedToKnow(page: Page): Promise<Partial<GPUPro
             otherPoints: []
         };
 
-        const iconSelector = "div.flex.h-5.w-5.items-center.justify-center.rounded-full";
-        const goodIcon = document.querySelector(`${iconSelector}.bg-green-500`);
-        const badIcon = document.querySelector(`${iconSelector}.bg-red-500`);
-        const restIcon = document.querySelector(`${iconSelector}.bg-neutral-400`);
+        const categories = {
+            'bg-green-500': 'goodPoints',
+            'bg-red-500': 'badPoints',
+            'bg-neutral-400': 'otherPoints'
+        };
 
-        const goodContainer = goodIcon ? goodIcon.parentNode?.parentNode as HTMLElement : null;
-        const badContainer = badIcon ? badIcon.parentNode?.parentNode as HTMLElement : null;
-        const restContainer = restIcon ? restIcon.parentNode?.parentNode as HTMLElement : null;
+        Object.entries(categories).forEach(([color, key]) => {
+            const iconSelector = `div.flex.h-5.w-5.items-center.justify-center.rounded-full.${color}`;
+            const icon = document.querySelector(iconSelector);
+            const container = icon ? icon.parentNode?.parentNode as HTMLElement : null;
 
-        // Helper to extract points as string arrays.
-        function extractPoints(container: HTMLElement | null): string[] {
-            return container ? Array.from(container.querySelectorAll('ul li')).map(li => {
-                const title = li.querySelector('span')?.textContent?.trim() || '';
-                const description = li.querySelector('p')?.textContent?.trim() || '';
-                return `${title}: ${description}`;
-            }) : [];
-        }
-
-        details.goodPoints = extractPoints(goodContainer);
-        details.badPoints = extractPoints(badContainer);
-        details.otherPoints = extractPoints(restContainer);
+            if (container) {
+                details[key] = Array.from(container.querySelectorAll('ul li')).map(li => {
+                    const title = li.querySelector('span')?.textContent?.trim() || '';
+                    const description = li.querySelector('p')?.textContent?.trim() || '';
+                    return `${title}: ${description}`;
+                });
+            }
+        });
 
         return details;
     });

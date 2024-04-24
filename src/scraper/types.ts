@@ -35,5 +35,6 @@ export interface GPUProductDetails {
         summary: string;
         testBench: Record<string, string>;
         testedSettings: string;
-    }
+    };
+    [key: string]: any;
 }
