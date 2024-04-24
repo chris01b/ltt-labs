@@ -1,20 +1,17 @@
 import { Browser, Page } from 'puppeteer';
-import { fetchHTML, initializeBrowser } from '../src/scraper/utils';
 import { parseOverview } from '../src/scraper/gpuDetails/overview';
+import { setupTestEnvironment, tearDownTestEnvironment } from './testSetup';
 
 describe('GPU Overview Scraper', () => {
     let browser: Browser;
     let page: Page;
 
     beforeAll(async () => {
-        const content = await fetchHTML('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb');
-        browser = await initializeBrowser();
-        page = await browser.newPage();
-        await page.setContent(content);
+        ({ browser, page } = await setupTestEnvironment('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb'));
     });
 
     afterAll(async () => {
-        await browser.close();
+        await tearDownTestEnvironment(browser);
     });
 
     it('should find the PRODUCT OVERVIEW section and extract text', async () => {

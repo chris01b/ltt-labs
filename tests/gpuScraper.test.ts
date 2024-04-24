@@ -1,19 +1,16 @@
 import { Browser, Page } from 'puppeteer';
-import { fetchHTML, initializeBrowser } from '../src/scraper/utils';
+import { setupTestEnvironment, tearDownTestEnvironment } from './testSetup';
 
 describe('GPU Scraper', () => {
     let browser: Browser;
     let page: Page;
 
     beforeAll(async () => {
-        const content = await fetchHTML('https://www.lttlabs.com/categories/graphics-cards');
-        browser = await initializeBrowser();
-        page = await browser.newPage();
-        await page.setContent(content);
+        ({ browser, page } = await setupTestEnvironment('https://www.lttlabs.com/categories/graphics-cards'));
     });
 
     afterAll(async () => {
-        await browser.close();
+        await tearDownTestEnvironment(browser);
     });
 
     it('should find elements with the testid "article-card"', async () => {

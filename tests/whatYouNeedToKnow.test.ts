@@ -1,20 +1,17 @@
 import { Browser, Page } from 'puppeteer';
-import { fetchHTML, initializeBrowser } from '../src/scraper/utils';
 import { parseWhatYouNeedToKnow } from '../src/scraper/gpuDetails/whatYouNeedToKnow';
+import { setupTestEnvironment, tearDownTestEnvironment } from './testSetup';
 
 describe('What You Need to Know Section Scraper', () => {
     let browser: Browser;
     let page: Page;
 
     beforeAll(async () => {
-        const content = await fetchHTML('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb');
-        browser = await initializeBrowser();
-        page = await browser.newPage();
-        await page.setContent(content);
+        ({ browser, page } = await setupTestEnvironment('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb'));
     });
 
     afterAll(async () => {
-        await browser.close();
+        await tearDownTestEnvironment(browser);
     });
 
     it('should extract non-empty lists for good, bad, and other points', async () => {
