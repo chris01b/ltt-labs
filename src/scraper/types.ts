@@ -3,12 +3,14 @@ export interface GPUData {
     url: string;
 }
 
+export type LinkDetails = Record<string, string>;
+
 export interface GPUProductDetails {
     overview: string;
     goodPoints: string[] | undefined;
     badPoints: string[] | undefined;
     otherPoints: string[] | undefined;
-    links: string[] | undefined;
+    links: LinkDetails;
     hardwareSummary: string;
     inTheBox: { images: string[], items: string[] };
     graphicsProcessorSpecs: Record<string, string>;
