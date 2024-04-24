@@ -16,8 +16,10 @@ async function fetchGPUPageDetails(url: string): Promise<GPUProductDetails> {
     const page = await browser.newPage();
     await page.setContent(content);
 
-    const whatYouNeedToKnow = await parseWhatYouNeedToKnow(page);
-    const links = await parseLinks(page);
+    const [whatYouNeedToKnow, links] = await Promise.all([
+        parseWhatYouNeedToKnow(page),
+        parseLinks(page)
+    ]);
 
     await browser.close();
 
