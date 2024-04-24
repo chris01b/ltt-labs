@@ -29,14 +29,7 @@ export async function extractGPUData(html: string): Promise<GPUData[]> {
 /**
  * Orchestrates the GPU data scraping process.
  */
-async function scrapeGPUs() {
-    try {
-        const html = await fetchHTML(BASE_URL);
-        const gpuData = await extractGPUData(html);
-        console.log(gpuData);
-    } catch (error) {
-        console.error('Scraping failed:', error instanceof Error ? error.message : error);
-    }
+export async function scrapeGPUs() {
+    const html = await fetchHTML(BASE_URL);
+    return extractGPUData(html);
 }
-
-scrapeGPUs();
