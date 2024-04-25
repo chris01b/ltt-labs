@@ -5,7 +5,18 @@ export interface GPUData {
 
 export type LinkDetails = Record<string, string>;
 
+export interface ArticleInfo {
+    title: string | null;
+    author: string | null;
+    testedBy: string | null;
+    published: string | null;
+}
+
 export interface GPUProductDetails {
+    name: string | null;
+    author: string | null;
+    testedBy: string | null;
+    published: string | null;
     overview: string | null;
     goodPoints: string[] | undefined;
     badPoints: string[] | undefined;

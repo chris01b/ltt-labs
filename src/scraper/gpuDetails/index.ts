@@ -3,6 +3,7 @@ import { GPUProductDetails } from '../types';
 import { parseWhatYouNeedToKnow } from './whatYouNeedToKnow';
 import { parseLinks } from './links';
 import { parseOverview } from './overview';
+import { parseArticleInfo } from './articleInfo';
 
 /**
  * Fetches and extracts detailed information about GPUs from their respective detail pages.
@@ -17,15 +18,20 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
     const page = await browser.newPage();
     await page.setContent(content);
 
-    const [whatYouNeedToKnow, links, overview] = await Promise.all([
+    const [whatYouNeedToKnow, links, overview, articleInfo] = await Promise.all([
         parseWhatYouNeedToKnow(page),
         parseLinks(page),
-        parseOverview(page)
+        parseOverview(page),
+        parseArticleInfo(page)
     ]);
 
     await browser.close();
 
     return {
+        name: articleInfo.title,
+        author: articleInfo.author,
+        testedBy: articleInfo.testedBy,
+        published: articleInfo.published,
         overview: overview,
         goodPoints: whatYouNeedToKnow.goodPoints,
         badPoints: whatYouNeedToKnow.badPoints,
