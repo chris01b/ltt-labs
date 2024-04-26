@@ -10,7 +10,7 @@ import { Page } from 'puppeteer';
  */
 export async function parseOverview(page: Page): Promise<string | null> {
     return page.evaluate(() => {
-        const productOverviewHeader = document.querySelector('h2.text-3xl.font-extrabold.text-custom-category');
+        const productOverviewHeader = document.querySelector('h2.text-3xl.font-extrabold');
         const productOverviewContent = productOverviewHeader?.parentElement?.nextElementSibling?.children[0]?.children[1]?.children[0]?.children[0];
 
         // Check if the container for the overview content is properly located.
