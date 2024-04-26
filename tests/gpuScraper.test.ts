@@ -1,24 +1,24 @@
-import { Browser, Page } from 'puppeteer';
-import { setupTestEnvironment, tearDownTestEnvironment } from './testSetup';
+import { setupPuppeteer, closePuppeteer, getPage } from '../src/scraper/puppeteerSetup';
 
 describe('GPU Scraper', () => {
-    let browser: Browser;
-    let page: Page;
-
     beforeAll(async () => {
-        ({ browser, page } = await setupTestEnvironment('https://www.lttlabs.com/categories/graphics-cards'));
+        await setupPuppeteer();
+        const page = await getPage();
+        await page.goto('https://www.lttlabs.com/categories/graphics-cards', { waitUntil: 'networkidle0' });
     });
 
     afterAll(async () => {
-        await tearDownTestEnvironment(browser);
+        await closePuppeteer();
     });
 
     it('should find elements with the testid "article-card"', async () => {
+        const page = await getPage();
         const elements = await page.$$('a[data-testid="article-card"]');
         expect(elements.length).toBeGreaterThan(0); // Correct usage of Jest's matchers for length checking
     });
 
     it('should ensure that each "article-card" has a non-empty aria-label', async () => {
+        const page = await getPage();
         const elements = await page.$$('a[data-testid="article-card"]');
         for (const element of elements) {
             const label = await element.evaluate((el: Element) => el.getAttribute('aria-label'));

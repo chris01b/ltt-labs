@@ -1,21 +1,19 @@
-import { Browser, Page } from 'puppeteer';
 import { parseHardwareSummary } from '../src/scraper/hardware/hardwareSummary';
-import { setupTestEnvironment, tearDownTestEnvironment } from './testSetup';
-import { initializePage } from '../src/scraper/utils';
+import { setupPuppeteer, closePuppeteer, getPage } from '../src/scraper/puppeteerSetup';
 
 describe('Hardware Summary Scraper', () => {
-    let browser: Browser;
-    let page: Page;
-
     beforeAll(async () => {
-        [browser, page] = await initializePage();
+        await setupPuppeteer();
+        const page = await getPage();
+        await page.goto('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb', { waitUntil: 'networkidle0' });
     });
 
     afterAll(async () => {
-        await tearDownTestEnvironment(browser);
+        await closePuppeteer();
     });
 
     it('should correctly extract the hardware summary', async () => {
+        const page = await getPage();
         await page.goto('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb', { waitUntil: 'networkidle0' });
         const hardwareSummary = await parseHardwareSummary(page);
         expect(hardwareSummary).toBeTruthy();
@@ -24,6 +22,7 @@ describe('Hardware Summary Scraper', () => {
     });
 
     it('should handle the absence of the button or summary content gracefully', async () => {
+        const page = await getPage();
         await page.goto('https://www.lttlabs.com/articles/gpu/invalid-gpu', { waitUntil: 'networkidle0' });
         const hardwareSummary = await parseHardwareSummary(page);
         expect(hardwareSummary).toBeNull();
