@@ -22,7 +22,7 @@ export interface GPUProductDetails {
     badPoints: string[] | undefined;
     otherPoints: string[] | undefined;
     links: LinkDetails;
-    hardwareSummary: string;
+    hardwareSummary: string | null;
     inTheBox: { images: string[], items: string[] };
     graphicsProcessorSpecs: Record<string, string>;
     coresAndClocks: Record<string, string>;

@@ -1,5 +1,5 @@
 import { scrapeGPUs } from './scraper/gpuScraper';
-import { fetchGPUPageDetails } from './scraper/gpuDetails';
+import { fetchGPUPageDetails } from './scraper';
 
 async function fetchAllGPUData() {
     try {

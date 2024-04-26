@@ -1,4 +1,4 @@
-import { fetchHTML, initializeBrowser } from './utils';
+import { fetchHTML, initializePage } from './utils';
 import { GPUData } from './types';
 
 const BASE_URL = 'https://www.lttlabs.com/categories/graphics-cards';
@@ -10,8 +10,7 @@ const BASE_URL = 'https://www.lttlabs.com/categories/graphics-cards';
  */
 export async function extractGPUData(html: string): Promise<GPUData[]> {
     // TODO: Use common modules
-    const browser = await initializeBrowser();
-    const page = await browser.newPage();
+    const [browser, page] = await initializePage();
     await page.setContent(html);
     const gpuElements = await page.$$('a[data-testid="article-card"]');
     const gpuList: GPUData[] = [];

@@ -1,9 +1,10 @@
-import { fetchHTML, initializeBrowser } from '../utils';
-import { GPUProductDetails } from '../types';
-import { parseWhatYouNeedToKnow } from './whatYouNeedToKnow';
-import { parseLinks } from './links';
-import { parseOverview } from './overview';
-import { parseArticleInfo } from './articleInfo';
+import { initializePage } from './utils';
+import { GPUProductDetails } from './types';
+import { parseWhatYouNeedToKnow } from './gpuDetails/whatYouNeedToKnow';
+import { parseLinks } from './gpuDetails/links';
+import { parseOverview } from './gpuDetails/overview';
+import { parseArticleInfo } from './gpuDetails/articleInfo';
+import { parseHardwareSummary } from './hardware/hardwareSummary';
 
 /**
  * Fetches and extracts detailed information about GPUs from their respective detail pages.
@@ -13,16 +14,15 @@ import { parseArticleInfo } from './articleInfo';
  * @returns An object containing structured GPU product details.
  */
 export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetails> {
-    const content = await fetchHTML(url);
-    const browser = await initializeBrowser();
-    const page = await browser.newPage();
-    await page.setContent(content);
+    const [browser, page] = await initializePage();
+    await page.goto(url, { waitUntil: 'networkidle0' });
 
-    const [whatYouNeedToKnow, links, overview, articleInfo] = await Promise.all([
+    const [whatYouNeedToKnow, links, overview, articleInfo, hardwareSummary] = await Promise.all([
         parseWhatYouNeedToKnow(page),
         parseLinks(page),
         parseOverview(page),
-        parseArticleInfo(page)
+        parseArticleInfo(page),
+        parseHardwareSummary(page)
     ]);
 
     await browser.close();
@@ -37,7 +37,7 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
         badPoints: whatYouNeedToKnow.badPoints,
         otherPoints: whatYouNeedToKnow.otherPoints,
         links: links,
-        hardwareSummary: "",
+        hardwareSummary: hardwareSummary,
         inTheBox: { images: [], items: [] },
         graphicsProcessorSpecs: {},
         coresAndClocks: {},
