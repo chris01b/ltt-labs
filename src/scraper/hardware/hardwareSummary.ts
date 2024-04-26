@@ -17,7 +17,7 @@ export async function parseHardwareSummary(page: Page): Promise<string | null> {
         if (button) {
             await button.click();
 
-            await page.waitForSelector('#hardware-summary .text-base', { timeout: 60000 });
+            await page.waitForSelector('#hardware-summary .text-base', { timeout: 1000 });
         } else {
             console.log("Button to expand hardware summary not found.");
             return null;
