@@ -8,5 +8,6 @@ module.exports = {
   },
   testMatch: ['**/tests/**/*.test.ts'],
   testPathIgnorePatterns: ['/node_modules/'],
-  testTimeout: 30000
+  testTimeout: 40000,
+  testEnvironment: './tests/puppeteerTestEnv.ts',
 };
