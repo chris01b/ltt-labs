@@ -1,6 +1,8 @@
 import NodeEnvironment from 'jest-environment-node';
 import puppeteer, { Browser, Page } from 'puppeteer';
 
+// Configuring a new browser for each test suite is convenient for visually debugging
+// but may not be the most efficient. Will consider use globalSetup and globalTeardown
 class PuppeteerEnvironment extends NodeEnvironment {
     browser!: Browser;
     page!: Page;

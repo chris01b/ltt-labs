@@ -1,9 +1,9 @@
-import { scrapeGPUs } from './scraper/gpuScraper';
+import { scrapeGpuList } from './scraper/gpuListScraper';
 import { fetchGPUPageDetails } from './scraper';
 
 async function fetchAllGPUData() {
     try {
-        const gpuList = await scrapeGPUs();  // Fetch all GPU data including URLs.
+        const gpuList = await scrapeGpuList();  // Fetch list of GPUs
         const detailsPromises = gpuList.map(gpu => fetchGPUPageDetails(gpu.url));
         const details = await Promise.all(detailsPromises);  // Fetch details for each GPU concurrently.
 
