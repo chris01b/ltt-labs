@@ -5,7 +5,7 @@ describe('Article Info Scraper', () => {
     beforeAll(async () => {
         await setupPuppeteer();
         const page = await getPage();
-        await page.goto('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb', { waitUntil: 'networkidle0' });
+        await page.goto('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb', { waitUntil: 'networkidle2' });
     });
 
     afterAll(async () => {
@@ -42,7 +42,7 @@ describe('Article Info Scraper', () => {
 
     it('should handle missing data fields gracefully', async () => {
         const page = await getPage();
-        await page.goto('https://www.lttlabs.com/articles/gpu/invalid-gpu', { waitUntil: 'networkidle0' });
+        await page.goto('https://www.lttlabs.com/articles/gpu/invalid-gpu', { waitUntil: 'networkidle2' });
         const articleInfo = await parseArticleInfo(page);
         expect(articleInfo.author).toBeNull();
         expect(articleInfo.testedBy).toBeNull();

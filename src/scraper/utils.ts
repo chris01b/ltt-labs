@@ -1,7 +1,7 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 
 export async function initializePage(): Promise<[Browser, Page]> {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'
     await page.setUserAgent(userAgent);
@@ -16,7 +16,7 @@ export async function initializePage(): Promise<[Browser, Page]> {
  */
 export async function fetchHTML(url: string): Promise<string> {
     const [browser, page] = await initializePage();
-    const response = await page.goto(url, { waitUntil: 'networkidle0' });
+    const response = await page.goto(url, { waitUntil: 'networkidle2' });
 
     if (!response) throw new Error('No response from the server.');
     if (response?.status() >= 400) {

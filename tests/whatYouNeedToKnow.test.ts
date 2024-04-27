@@ -5,7 +5,7 @@ describe('What You Need to Know Section Scraper', () => {
     beforeAll(async () => {
         await setupPuppeteer();
         const page = await getPage();
-        await page.goto('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb', { waitUntil: 'networkidle0' });
+        await page.goto('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb', { waitUntil: 'networkidle2' });
     });
 
     afterAll(async () => {

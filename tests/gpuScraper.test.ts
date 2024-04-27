@@ -4,7 +4,7 @@ describe('GPU Scraper', () => {
     beforeAll(async () => {
         await setupPuppeteer();
         const page = await getPage();
-        await page.goto('https://www.lttlabs.com/categories/graphics-cards', { waitUntil: 'networkidle0' });
+        await page.goto('https://www.lttlabs.com/categories/graphics-cards', { waitUntil: 'networkidle2' });
     });
 
     afterAll(async () => {

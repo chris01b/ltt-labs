@@ -15,7 +15,7 @@ import { parseHardwareSummary } from './hardware/hardwareSummary';
  */
 export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetails> {
     const [browser, page] = await initializePage();
-    await page.goto(url, { waitUntil: 'networkidle0' });
+    await page.goto(url, { waitUntil: 'networkidle2' });
 
     const [whatYouNeedToKnow, links, overview, articleInfo, hardwareSummary] = await Promise.all([
         parseWhatYouNeedToKnow(page),
