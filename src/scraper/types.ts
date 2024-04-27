@@ -12,6 +12,10 @@ export interface ArticleInfo {
     published: string | null;
 }
 
+export interface Hardware {
+    summary: string | null;
+}
+
 export interface GPUProductDetails {
     name: string | null;
     author: string | null;

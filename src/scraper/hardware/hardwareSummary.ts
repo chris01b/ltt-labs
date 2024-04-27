@@ -10,21 +10,8 @@ import { Page } from 'puppeteer';
  */
 export async function parseHardwareSummary(page: Page): Promise<string | null> {
     try {
-        const buttonSelector = '#hardware > div > button';
-
-        const button = await page.$(buttonSelector);
-
-        if (button) {
-            await button.click();
-
-            await page.waitForSelector('#hardware-summary .text-base', { timeout: 1000 });
-        } else {
-            console.log("Button to expand hardware summary not found.");
-            return null;
-        }
-
-        // Check and retrieve the content
-        const summaryElements = await page.$$('#hardware-summary .text-base');
+        const summarySelector = '#hardware-summary .text-base';
+        const summaryElements = await page.$$(summarySelector);
 
         if (summaryElements.length < 2) {
             console.error("Not enough elements found for hardware summary.");
