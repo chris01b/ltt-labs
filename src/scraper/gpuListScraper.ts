@@ -3,7 +3,6 @@ import { GPUData } from './types';
 
 /**
  * Retrieves a list of GPUs from the LTT Labs list.
- * @param {string} html - The HTML content as a string.
  * @returns {Promise<GPUData[]>} An array of GPUData objects.
 */
 export async function scrapeGpuList(): Promise<GPUData[]> {
