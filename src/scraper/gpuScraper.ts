@@ -10,7 +10,7 @@ const BASE_URL = 'https://www.lttlabs.com/categories/graphics-cards';
  */
 export async function extractGPUData(html: string): Promise<GPUData[]> {
     // TODO: Use common modules
-    const [browser, page] = await initializePage();
+    const { browser, page } = await initializePage();
     await page.setContent(html);
     const gpuElements = await page.$$('a[data-testid="article-card"]');
     const gpuList: GPUData[] = [];
