@@ -60,6 +60,11 @@ describe('Hardware Scraper', () => {
                 expect(hardware?.graphicsProcessor?.['Architecture']).toEqual('Lovelace');
                 expect(hardware?.graphicsProcessor?.['GPU Chip']).toEqual('AD103');
             });
+
+            it('should find Nvidia GeForce RTX 4080 SUPER 16GB graphics processor note', () => {
+                expect(hardware?.graphicsProcessor).toHaveProperty('note');
+                expect(hardware?.graphicsProcessor?.note).toBeTruthy();
+            });
         });
     });
 

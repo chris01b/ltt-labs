@@ -10,15 +10,15 @@ import { GraphicsProcessor } from '../types';
  */
 export async function parseGraphicsProcessor(page: Page): Promise<GraphicsProcessor | null> {
     try {
-        const inTheBoxSelector = '#graphics-processor';
-        const sectionExists = await page.$(inTheBoxSelector) !== null;
+        const graphicsProcessorSelector = '#graphics-processor';
+        const sectionExists = await page.$(graphicsProcessorSelector) !== null;
         if (!sectionExists) {
             return null;
         }
 
-        const images = await getImagesData(page, inTheBoxSelector);
+        const images = await getImagesData(page, graphicsProcessorSelector);
         
-        const specsSelector = `${inTheBoxSelector} div.group.text-sm`;
+        const specsSelector = `${graphicsProcessorSelector} div.group.text-sm`;
         const specs = await page.$$eval(specsSelector, divs => {
             const items: { [key: string]: string } = divs.reduce((acc: { [key: string]: string }, div) => {
                 // Getting the key from the first child div
@@ -42,6 +42,13 @@ export async function parseGraphicsProcessor(page: Page): Promise<GraphicsProces
             }, {});
             return items;
         });
+
+        const noteSelector = `${graphicsProcessorSelector} div.wysiwyg`;
+        const note = await page.$(noteSelector);
+        const noteText = await note?.evaluate(el => el.textContent?.trim() || null);
+        if (noteText) {
+            specs.note = noteText;
+        }
         
         return {
             images: images,
