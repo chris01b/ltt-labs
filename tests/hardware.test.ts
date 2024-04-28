@@ -1,30 +1,63 @@
 import { parseHardware } from '../src/scraper/hardware';
 import { Hardware } from '../src/scraper/types';
+import { parseInTheBox } from '../src/scraper/hardware/inTheBox';
 
 describe('Hardware Scraper', () => {
-    let hardware: Hardware | null = null;
+    let page = global.page; // Assuming this is globally defined for your tests
 
-    beforeAll(async () => {
-        await global.page.goto('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb', { waitUntil: 'networkidle2' });
-        hardware = await parseHardware(global.page);
+    describe('Valid GPU Article', () => {
+        let hardware: Hardware | null = null;
+
+        beforeAll(async () => {
+            await page.goto('https://www.lttlabs.com/articles/gpu/nvidia-geforce-rtx-4080-super-16gb', { waitUntil: 'networkidle2' });
+            hardware = await parseHardware(page);
+        });
+
+        it('should return an object of type Hardware', async () => {
+            expect(hardware).toBeTruthy(); // Ensure that the hardware object is not null
+        });
+
+        describe('Hardware Summary', () => {
+            it('should correctly extract the hardware summary', async () => {
+                const hardwareSummary = hardware?.summary;
+                expect(hardwareSummary).toBeTruthy();
+                expect(typeof hardwareSummary).toBe('string');
+                expect(hardwareSummary).toContain('AD103');  // Check for specific expected content in the summary
+            });
+        });
+
+        describe('In-The-Box Content', () => {
+            it('should correctly extract images and box items', async () => {
+                expect(hardware?.inTheBox).toHaveProperty('images');
+                expect(hardware?.inTheBox).toHaveProperty('box');
+                if (hardware?.inTheBox) {
+                    expect(hardware?.inTheBox.images?.length).toEqual(4);
+                    expect(hardware?.inTheBox.box?.length).toEqual(3);
+
+                    const firstImage = hardware?.inTheBox?.images?.[0] ?? null;
+                    expect(firstImage?.url).toMatch(/^http/); // Checks if the URL is valid
+                    expect(firstImage?.caption).toBeTruthy(); // Checks if there is a caption
+                }
+            });
+        });
     });
 
-    it('should return an object of type Hardware', async () => {
-        expect(hardware).toBeTruthy(); // Ensure that the hardware object is not null
-    });
+    describe('Invalid GPU Article', () => {
+        let nullHardware: Hardware | null = null;
 
-    describe('Hardware Summary', () => {
-        it('should correctly extract the hardware summary', async () => {
-            const hardwareSummary = hardware?.summary;
-            expect(hardwareSummary).toBeTruthy();
-            expect(typeof hardwareSummary).toBe('string');
-            expect(hardwareSummary).toContain('AD103');  // Check for specific expected content in the summary
+        beforeAll(async () => {
+            await page.goto('https://www.lttlabs.com/articles/gpu/invalid-gpu', { waitUntil: 'networkidle2' });
+            nullHardware = await parseHardware(page);
         });
 
         it('should handle the absence of the button or summary content gracefully', async () => {
-            await global.page.goto('https://www.lttlabs.com/articles/gpu/invalid-gpu', { waitUntil: 'networkidle2' });
-            const nullHardware = await parseHardware(global.page);
             expect(nullHardware?.summary).toBeNull();
+        });
+
+        describe('In-The-Box Content when Missing', () => {
+            it('should handle missing selectors gracefully', async () => {
+                expect(nullHardware?.inTheBox).toBeNull();
+            });
         });
     });
 });

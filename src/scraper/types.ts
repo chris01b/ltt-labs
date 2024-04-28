@@ -14,6 +14,15 @@ export interface ArticleInfo {
 
 export interface Hardware {
     summary: string | null;
+    inTheBox: InTheBox | null
+}
+
+export interface InTheBox {
+    images: Array<{
+        url: string | null;
+        caption: string | null;
+    }> | null;
+    box: Array<string> | null;
 }
 
 export interface GPUProductDetails {
@@ -27,7 +36,7 @@ export interface GPUProductDetails {
     otherPoints: string[] | undefined;
     links: LinkDetails;
     hardwareSummary: string | null;
-    inTheBox: { images: string[], items: string[] };
+    inTheBox: InTheBox | null;
     graphicsProcessorSpecs: Record<string, string>;
     coresAndClocks: Record<string, string>;
     boardDesignSpecs: Record<string, string>;

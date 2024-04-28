@@ -1,5 +1,6 @@
 import { scrapeGpuList } from './scraper/gpuListScraper';
 import { fetchGPUPageDetails } from './scraper';
+import util from 'util';
 
 async function fetchAllGPUData() {
     try {
@@ -7,7 +8,7 @@ async function fetchAllGPUData() {
         const detailsPromises = gpuList.map(gpu => fetchGPUPageDetails(gpu.url));
         const details = await Promise.all(detailsPromises);  // Fetch details for each GPU concurrently.
 
-        console.log(details);
+        console.log(util.inspect(details, {showHidden: false, depth: null, colors: true}))
     } catch (error) {
         console.error('Failed to fetch GPU details:', error instanceof Error ? error.message : error);
     }
