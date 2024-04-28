@@ -40,7 +40,7 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
         hardwareSummary: hardware.summary,
         inTheBox: hardware.inTheBox,
         graphicsProcessor: hardware.graphicsProcessor,
-        coresAndClocks: {},
+        coresAndClocks: hardware.coresAndClocks,
         boardDesignSpecs: {},
         featuresAndSoftware: {
             summary: "",

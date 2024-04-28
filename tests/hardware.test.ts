@@ -66,6 +66,13 @@ describe('Hardware Scraper', () => {
                 expect(hardware?.graphicsProcessor?.note).toBeTruthy();
             });
         });
+
+        describe('Cores & Clocks Content', () => {
+            it('should correctly extract specifications', () => {
+                expect(hardware?.coresAndClocks).toHaveProperty('Memory Type');
+                expect(hardware?.coresAndClocks?.['Memory Type']).toEqual('GDDR6X');
+            });
+        });
     });
 
     describe('Invalid GPU Article', () => {
@@ -89,6 +96,11 @@ describe('Hardware Scraper', () => {
         // Graphics Processor
         it('should return null when graphics processor section is missing', () => {
             expect(nullHardware?.graphicsProcessor).toBeNull();
+        });
+
+        // Cores & Clocks
+        it('should return null when cores & clocks section is missing', () => {
+            expect(nullHardware?.coresAndClocks).toBeNull();
         });
     });
 });

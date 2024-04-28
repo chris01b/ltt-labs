@@ -2,6 +2,7 @@ import { Page } from 'puppeteer';
 import { parseHardwareSummary } from './hardwareSummary';
 import { parseInTheBox } from './inTheBox';
 import { parseGraphicsProcessor } from './graphicsProcessor';
+import { parseCoresAndClocks } from './coresAndClocks';
 import { Hardware } from '../types';
 
 /**
@@ -13,7 +14,13 @@ import { Hardware } from '../types';
  * @returns The hardware summary as a string if found, otherwise returns null.
  */
 export async function parseHardware(page: Page): Promise<Hardware> {
-    let hardware: Hardware = { summary: null, inTheBox: null, graphicsProcessor: null};
+    let hardware: Hardware = {
+        summary: null,
+        inTheBox: null,
+        graphicsProcessor: null,
+        coresAndClocks: null,
+    };
+    
     try {
         const buttonSelector = '#hardware > div > button';
         const isOpenSelector = '#hardware-summary .text-base';
@@ -29,13 +36,14 @@ export async function parseHardware(page: Page): Promise<Hardware> {
             return hardware; // return null initialization
         }
 
-        const [summary, inTheBox, graphicsProcessor] = await Promise.all([
+        const [summary, inTheBox, graphicsProcessor, coresAndClocks] = await Promise.all([
             parseHardwareSummary(page),
             parseInTheBox(page),
-            parseGraphicsProcessor(page)
+            parseGraphicsProcessor(page),
+            parseCoresAndClocks(page)
         ]);
 
-        return hardware = { summary, inTheBox, graphicsProcessor };
+        return hardware = { summary, inTheBox, graphicsProcessor, coresAndClocks };
     } catch (error) {
         console.error(`Error fetching hardware summary: ${error}`);
         return hardware;
