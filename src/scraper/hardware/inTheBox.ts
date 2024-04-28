@@ -1,14 +1,15 @@
 import { Page } from 'puppeteer';
+import { getImagesData } from './utils';
 import { InTheBox } from '../types';
 
 /**
- * Extracts the hardware summary from the specified webpage after simulating a button click
- * that reveals the hardware summary content.
+ * Extracts the in the box hardware from the specified webpage with the hardware box open
  * 
  * @param page The Puppeteer Page object representing the currently loaded webpage.
- * @returns The hardware info.
+ * @returns The in the box hardware.
  */
 export async function parseInTheBox(page: Page): Promise<InTheBox | null> {
+    // In The Box
     try {
         const inTheBoxSelector = '#in-the-box';
         const sectionExists = await page.$(inTheBoxSelector) !== null;
@@ -16,11 +17,7 @@ export async function parseInTheBox(page: Page): Promise<InTheBox | null> {
             return null;
         }
 
-        const imagesSelector = `${inTheBoxSelector} div[class*="MetadataSection_asset"] ul.slider`;
-        const images = await page.$$eval(`${imagesSelector} li:not(:first-child):not(:last-child)`, lis => lis.map(li => ({
-            url: li.querySelector('img')?.src || null,
-            caption: li.querySelector('span')?.textContent?.trim() || null
-        })));
+        const images = await getImagesData(inTheBoxSelector);
         
         const itemsInTheBoxSelector = `${inTheBoxSelector} div.group.text-sm`;
         let itemsInTheBox: string[] | null = await page.$$eval(`${itemsInTheBoxSelector} > div > div`, divs => {
@@ -35,14 +32,12 @@ export async function parseInTheBox(page: Page): Promise<InTheBox | null> {
             itemsInTheBox = textContent !== null ? [textContent] : null;
         }
         
-        
-
         return {
             images: images,
             box: itemsInTheBox
         };
     } catch (error) {
-        console.error(`Error fetching hardware summary: ${error}`);
+        console.error(`Error fetching in the box hardware: ${error}`);
         return null;
     }
 }
