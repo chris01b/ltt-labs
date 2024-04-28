@@ -9,7 +9,6 @@ import { InTheBox } from '../types';
  * @returns The in the box hardware.
  */
 export async function parseInTheBox(page: Page): Promise<InTheBox | null> {
-    // In The Box
     try {
         const inTheBoxSelector = '#in-the-box';
         const sectionExists = await page.$(inTheBoxSelector) !== null;
@@ -17,7 +16,7 @@ export async function parseInTheBox(page: Page): Promise<InTheBox | null> {
             return null;
         }
 
-        const images = await getImagesData(inTheBoxSelector);
+        const images = await getImagesData(page, inTheBoxSelector);
         
         const itemsInTheBoxSelector = `${inTheBoxSelector} div.group.text-sm`;
         let itemsInTheBox: string[] | null = await page.$$eval(`${itemsInTheBoxSelector} > div > div`, divs => {

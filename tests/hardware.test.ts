@@ -16,12 +16,14 @@ describe('Hardware Scraper', () => {
             expect(hardware).toBeTruthy();
         });
 
-        describe('Hardware Summary', () => {
-            it('should correctly extract the hardware summary', async () => {
-                const hardwareSummary = hardware?.summary;
-                expect(hardwareSummary).toBeTruthy();
-                expect(typeof hardwareSummary).toBe('string');
-                expect(hardwareSummary).toContain('AD103');  // Check for specific expected content in the summary
+        describe('Summary Content', () => {
+            describe('Hardware Summary', () => {
+                it('should correctly extract the hardware summary', async () => {
+                    const hardwareSummary = hardware?.summary;
+                    expect(hardwareSummary).toBeTruthy();
+                    expect(typeof hardwareSummary).toBe('string');
+                    expect(hardwareSummary).toContain('AD103');  // Check for specific expected content in the summary
+                });
             });
         });
 
@@ -39,6 +41,26 @@ describe('Hardware Scraper', () => {
                 }
             });
         });
+
+        describe('Graphics Processor Content', () => {
+            it('should return an object of type GraphicsProcessor', () => {
+                expect(hardware?.graphicsProcessor).toBeTruthy();
+                expect(hardware?.graphicsProcessor).toBeInstanceOf(Object);
+            });
+    
+            it('should correctly extract images', () => {
+                expect(hardware?.graphicsProcessor?.images).toBeTruthy();
+                expect(hardware?.graphicsProcessor?.images?.length).toBeGreaterThan(0);
+                expect(hardware?.graphicsProcessor?.images?.[0]).toHaveProperty('url');
+            });
+    
+            it('should correctly extract specifications', () => {
+                expect(hardware?.graphicsProcessor).toHaveProperty('Architecture');
+                expect(hardware?.graphicsProcessor).toHaveProperty('GPU Chip');
+                expect(hardware?.graphicsProcessor?.['Architecture']).toEqual('Lovelace');
+                expect(hardware?.graphicsProcessor?.['GPU Chip']).toEqual('AD103');
+            });
+        });
     });
 
     describe('Invalid GPU Article', () => {
@@ -49,14 +71,19 @@ describe('Hardware Scraper', () => {
             nullHardware = await parseHardware(page);
         });
 
+        // Summary
         it('should handle the absence of the button or summary content gracefully', async () => {
             expect(nullHardware?.summary).toBeNull();
         });
 
-        describe('In-The-Box Content when Missing', () => {
-            it('should handle missing selectors gracefully', async () => {
-                expect(nullHardware?.inTheBox).toBeNull();
-            });
+        // In-The-Box
+        it('should handle missing selectors gracefully', async () => {
+            expect(nullHardware?.inTheBox).toBeNull();
+        });
+
+        // Graphics Processor
+        it('should return null when graphics processor section is missing', () => {
+            expect(nullHardware?.graphicsProcessor).toBeNull();
         });
     });
 });

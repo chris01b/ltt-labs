@@ -1,4 +1,6 @@
-export async function getImagesData(selector: string): Promise<{
+import { Page } from 'puppeteer';
+
+export async function getImagesData(page: Page, selector: string): Promise<{
     url: string | null;
     caption: string | null;
 }[]> {
