@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { getImagesData } from './utils';
+import { getImagesData, getSpecsObject } from './utils';
 import { GraphicsProcessor } from '../types';
 
 /**
@@ -19,29 +19,7 @@ export async function parseGraphicsProcessor(page: Page): Promise<GraphicsProces
         const images = await getImagesData(page, graphicsProcessorSelector);
         
         const specsSelector = `${graphicsProcessorSelector} div.group.text-sm`;
-        const specs = await page.$$eval(specsSelector, divs => {
-            const items: { [key: string]: string } = divs.reduce((acc: { [key: string]: string }, div) => {
-                // Getting the key from the first child div
-                const keyNode = div.querySelector('div.font-semibold');
-                const key = keyNode ? keyNode.textContent?.trim() : null;
-        
-                // Get all text nodes directly under the current div that are immediate siblings of the keyNode
-                let value = '';
-                const childNodes = Array.from(div.childNodes);
-                childNodes.forEach(node => {
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        value += node.textContent?.trim();
-                    }
-                });
-        
-                // Adding key-value pair to the accumulator
-                if (key && value) {
-                    acc[key] = value;
-                }
-                return acc;
-            }, {});
-            return items;
-        });
+        const specs = await getSpecsObject(page, specsSelector);
 
         const noteSelector = `${graphicsProcessorSelector} div.wysiwyg`;
         const note = await page.$(noteSelector);
