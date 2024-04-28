@@ -11,6 +11,14 @@ export async function getImagesData(page: Page, selector: string): Promise<{
     })));
 }
 
+export async function getSpecsList(page: Page, specsSelector: string): Promise<string[] | null> {
+    return await page.$$eval(`${specsSelector} > div > div`, divs => {
+        const items = divs.map(div => div.textContent?.trim());
+        // Filter out any items that are null or empty to ensure only valid strings are returned
+        return items.filter(item => !!item).length > 0 ? items.filter(item => !!item) as string[] : null;
+    });
+}
+
 export async function getSpecsObject(page: Page, specsSelector: string): Promise<{ [key: string]: string }> {
     return await page.$$eval(specsSelector, divs => {
         const items: { [key: string]: string } = divs.reduce((acc: { [key: string]: string }, div) => {

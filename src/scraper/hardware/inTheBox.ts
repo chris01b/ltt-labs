@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { getImagesData } from './utils';
+import { getImagesData, getSpecsList } from './utils';
 import { InTheBox } from '../types';
 
 /**
@@ -19,11 +19,7 @@ export async function parseInTheBox(page: Page): Promise<InTheBox | null> {
         const images = await getImagesData(page, inTheBoxSelector);
         
         const itemsInTheBoxSelector = `${inTheBoxSelector} div.group.text-sm`;
-        let itemsInTheBox: string[] | null = await page.$$eval(`${itemsInTheBoxSelector} > div > div`, divs => {
-            const items = divs.map(div => div.textContent?.trim());
-            // Filter out any items that are null or empty to ensure only valid strings are returned
-            return items.filter(item => !!item).length > 0 ? items.filter(item => !!item) as string[] : null;
-        });
+        let itemsInTheBox = await getSpecsList(page, itemsInTheBoxSelector);
 
         // When there is a singular item in the box, the HTML structure is different
         if (itemsInTheBox === null) {
