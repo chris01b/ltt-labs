@@ -1,9 +1,8 @@
 import { parseHardware } from '../src/scraper/hardware';
 import { Hardware } from '../src/scraper/types';
-import { parseInTheBox } from '../src/scraper/hardware/inTheBox';
 
 describe('Hardware Scraper', () => {
-    let page = global.page; // Assuming this is globally defined for your tests
+    let page = global.page;
 
     describe('Valid GPU Article', () => {
         let hardware: Hardware | null = null;
@@ -14,7 +13,7 @@ describe('Hardware Scraper', () => {
         });
 
         it('should return an object of type Hardware', async () => {
-            expect(hardware).toBeTruthy(); // Ensure that the hardware object is not null
+            expect(hardware).toBeTruthy();
         });
 
         describe('Hardware Summary', () => {
@@ -35,8 +34,8 @@ describe('Hardware Scraper', () => {
                     expect(hardware?.inTheBox.box?.length).toEqual(3);
 
                     const firstImage = hardware?.inTheBox?.images?.[0] ?? null;
-                    expect(firstImage?.url).toMatch(/^http/); // Checks if the URL is valid
-                    expect(firstImage?.caption).toBeTruthy(); // Checks if there is a caption
+                    expect(firstImage?.url).toMatch(/^http/);
+                    expect(firstImage?.caption).toBeTruthy();
                 }
             });
         });
