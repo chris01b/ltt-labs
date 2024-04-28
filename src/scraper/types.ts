@@ -17,6 +17,7 @@ export interface Hardware {
     inTheBox: InTheBox | null;
     graphicsProcessor: GraphicsProcessor | null;
     coresAndClocks: CoresAndClocks | null;
+    boardDesign: BoardDesign | null
 }
 
 export interface InTheBox {
@@ -40,6 +41,14 @@ export interface CoresAndClocks {
     [key: string]: any;
 }
 
+export interface BoardDesign {
+    images: Array<{
+        url: string | null;
+        caption: string | null;
+    }> | null;
+    [key: string]: any;
+}
+
 export interface GPUProductDetails {
     name: string | null;
     author: string | null;
@@ -54,7 +63,7 @@ export interface GPUProductDetails {
     inTheBox: InTheBox | null;
     graphicsProcessor: GraphicsProcessor | null;
     coresAndClocks: CoresAndClocks | null;
-    boardDesignSpecs: Record<string, string>;
+    boardDesign: BoardDesign | null;
     featuresAndSoftware: {
         summary: string;
         supportedFeatures: Record<string, string>;

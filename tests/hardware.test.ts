@@ -73,6 +73,19 @@ describe('Hardware Scraper', () => {
                 expect(hardware?.coresAndClocks?.['Memory Type']).toEqual('GDDR6X');
             });
         });
+
+        describe('Board Design Content', () => {
+            it('should correctly extract images', () => {
+                expect(hardware?.boardDesign?.images).toBeTruthy();
+                expect(hardware?.boardDesign?.images?.length).toBeGreaterThan(0);
+                expect(hardware?.boardDesign?.images?.[0]).toHaveProperty('url');
+            });
+    
+            it('should correctly extract specifications', () => {
+                expect(hardware?.boardDesign).toHaveProperty('Number of Fans');
+                expect(hardware?.boardDesign?.['Number of Fans']).toEqual('2');
+            });
+        });
     });
 
     describe('Invalid GPU Article', () => {
@@ -101,6 +114,11 @@ describe('Hardware Scraper', () => {
         // Cores & Clocks
         it('should return null when cores & clocks section is missing', () => {
             expect(nullHardware?.coresAndClocks).toBeNull();
+        });
+
+        // Board Design
+        it('should return null when board design section is missing', () => {
+            expect(nullHardware?.boardDesign).toBeNull();
         });
     });
 });

@@ -3,6 +3,7 @@ import { parseHardwareSummary } from './hardwareSummary';
 import { parseInTheBox } from './inTheBox';
 import { parseGraphicsProcessor } from './graphicsProcessor';
 import { parseCoresAndClocks } from './coresAndClocks';
+import { parseBoardDesign } from './boardDesign';
 import { Hardware } from '../types';
 
 /**
@@ -19,6 +20,7 @@ export async function parseHardware(page: Page): Promise<Hardware> {
         inTheBox: null,
         graphicsProcessor: null,
         coresAndClocks: null,
+        boardDesign: null,
     };
     
     try {
@@ -36,14 +38,15 @@ export async function parseHardware(page: Page): Promise<Hardware> {
             return hardware; // return null initialization
         }
 
-        const [summary, inTheBox, graphicsProcessor, coresAndClocks] = await Promise.all([
+        const [summary, inTheBox, graphicsProcessor, coresAndClocks, boardDesign] = await Promise.all([
             parseHardwareSummary(page),
             parseInTheBox(page),
             parseGraphicsProcessor(page),
-            parseCoresAndClocks(page)
+            parseCoresAndClocks(page),
+            parseBoardDesign(page)
         ]);
 
-        return hardware = { summary, inTheBox, graphicsProcessor, coresAndClocks };
+        return hardware = { summary, inTheBox, graphicsProcessor, coresAndClocks, boardDesign };
     } catch (error) {
         console.error(`Error fetching hardware summary: ${error}`);
         return hardware;
