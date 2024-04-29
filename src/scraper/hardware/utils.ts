@@ -1,4 +1,13 @@
-import { ElementHandle, Page } from 'puppeteer';
+import { Page } from 'puppeteer';
+
+export async function getSummaryData(page: Page, selector: string): Promise<string | null> {
+    const element = await page.$(selector);
+    if  (!element) {
+        return null;
+    } else {
+        return await element.evaluate(el => el.textContent?.trim() || null);
+    }
+}
 
 export async function getImagesData(page: Page, selector: string): Promise<{
     url: string | null;
