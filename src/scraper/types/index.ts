@@ -1,5 +1,7 @@
 import { GamingPerformanceTestData } from "./gamingPerformance";
 import { RayTracingPerformanceTestData } from "./rayTracingPerformance";
+import { ProductivityTestData } from "./productivity";
+import { BenchmarkTestData } from "./synthetics";
 
 export interface GPUData {
     name: string;
@@ -75,6 +77,11 @@ export interface Performance {
     rayTracingPerformance: RayTracingPerformanceTestData[]| null;
 }
 
+export interface ProductivityAndPerformance {
+    productivityTasks: ProductivityTestData[] | null;
+    syntheticScores: BenchmarkTestData[] | null;
+}
+
 export interface GPUProductDetails {
     name: string | null;
     author: string | null;
@@ -88,10 +95,7 @@ export interface GPUProductDetails {
     hardware: Hardware;
     featuresAndSoftware: FeaturesAndSoftware;
     performance: Performance;
-    productivityAndEfficiency: {
-        productivityTasks: Record<string, string>;
-        syntheticScores: Record<string, string>;
-    };
+    productivityAndEfficiency: ProductivityAndPerformance;
     testConfiguration: {
         summary: string;
         testBench: Record<string, string>;
