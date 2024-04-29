@@ -33,6 +33,13 @@ describe('featuresAndSoftware Scraper', () => {
                 expect(featuresAndSoftware?.supportedFeatures?.['Adaptive Sync']).toEqual('G-Sync');
             });
         });
+
+        describe('Encode/Decode Content', () => {
+            it('should correctly extract specifications', () => {
+                expect(featuresAndSoftware?.encodeDecode).toHaveProperty('VP9');
+                expect(featuresAndSoftware?.encodeDecode?.['VP9']).toEqual('Yes');
+            });
+        });
     });
 
     describe('Invalid GPU Article', () => {
@@ -49,8 +56,13 @@ describe('featuresAndSoftware Scraper', () => {
         });
 
         // Supported Features
-        it('should return null when cores & clocks section is missing', () => {
+        it('should return null when supported features section is missing', () => {
             expect(nullfeaturesAndSoftware?.supportedFeatures).toBeNull();
+        });
+
+        // Encode/Decode
+        it('should return null when encode/decode section is missing', () => {
+            expect(nullfeaturesAndSoftware?.encodeDecode).toBeNull();
         });
     });
 });

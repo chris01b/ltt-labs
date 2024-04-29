@@ -3,7 +3,7 @@ import { getSpecsObject } from '../utils';
 import { SupportedFeatures } from '../types';
 
 /**
- * Extracts the supported features from the specified webpage with the hardware box open
+ * Extracts the supported features from the specified webpage with the features & software box open
  * 
  * @param page The Puppeteer Page object representing the currently loaded webpage.
  * @returns The supported features data.
@@ -23,7 +23,7 @@ export async function parseSupportedFeatures(page: Page): Promise<SupportedFeatu
         
         return specs;
     } catch (error) {
-        console.error(`Error fetching cores & clocks: ${error}`);
+        console.error(`Error fetching supported features: ${error}`);
         return null;
     }
 }
