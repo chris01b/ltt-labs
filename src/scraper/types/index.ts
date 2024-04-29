@@ -82,6 +82,20 @@ export interface ProductivityAndPerformance {
     syntheticScores: BenchmarkTestData[] | null;
 }
 
+export interface TestConfiguration {
+    summary: string | null;
+    testBench: TestBench | null;
+    testedSettings: TestedSettings | null;
+}
+
+export interface TestBench {
+    [key: string]: any;
+}
+
+export interface TestedSettings {
+    [key: string]: any;
+}
+
 export interface GPUProductDetails {
     name: string | null;
     author: string | null;
@@ -95,11 +109,7 @@ export interface GPUProductDetails {
     hardware: Hardware;
     featuresAndSoftware: FeaturesAndSoftware;
     performance: Performance;
-    productivityAndEfficiency: ProductivityAndPerformance;
-    testConfiguration: {
-        summary: string;
-        testBench: Record<string, string>;
-        testedSettings: string;
-    };
+    productivityAndEfficiency: ProductivityAndPerformance | null;
+    testConfiguration: TestConfiguration;
     [key: string]: any;
 }
