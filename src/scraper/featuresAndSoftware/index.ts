@@ -3,6 +3,7 @@ import { parseSummary } from './summary';
 import { parseSupportedFeatures } from './supportedFeatures';
 import { parseEncodeDecode } from './encodeDecode';
 import { parseOemTechnologies } from './oemTechnologies';
+import { expandSection } from '../utils';
 import { FeaturesAndSoftware } from '../types';
 
 /**
@@ -25,19 +26,8 @@ export async function parseFeaturesAndSoftware(page: Page): Promise<FeaturesAndS
         const buttonSelector = '#features-and-software > div > button';
         const isOpenSelector = '#features-software-summary';
 
-        const button = await page.$(buttonSelector);
-        const isOpen = await page.$(isOpenSelector);
-
-        // Check if the summary is not already open
-        if (!isOpen) {
-            if (button) {
-                await button.click();
-                await page.waitForSelector(isOpenSelector, { timeout: 1000 });
-            } else {
-                console.log("Button to expand features & software not found.");
-                return featuresAndSoftware; // Return null initialization if button not found
-            }
-        }
+        const featuresAndSoftwareSectionName = "Features & Software";
+        const result = await expandSection(page, buttonSelector, isOpenSelector, featuresAndSoftwareSectionName);
 
         const [summary, supportedFeatures, encodeDecode, oemTechnologies] = await Promise.all([
             parseSummary(page),

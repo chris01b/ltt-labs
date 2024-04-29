@@ -1,5 +1,6 @@
 import { Page } from 'puppeteer';
 import { Performance } from '../types';
+import { expandSection } from '../utils';
 import { parseSummary } from './summary';
 
 /**
@@ -22,18 +23,9 @@ export async function parsePerformance(page: Page): Promise<Performance> {
         const isOpenSelector = '#performance-summary';
 
         const button = await page.$(buttonSelector);
-        const isOpen = await page.$(isOpenSelector);
-
-        // Check if the summary is not already open
-        if (!isOpen) {
-            if (button) {
-                await button.click();
-                await page.waitForSelector(isOpenSelector, { timeout: 1000 });
-            } else {
-                console.log("Button to expand performance not found.");
-                return performance; // Return null initialization if button not found
-            }
-        }
+        
+        const performanceSectionName = "Features & Software";
+        const result = await expandSection(page, buttonSelector, isOpenSelector, performanceSectionName);
 
         const [summary] = await Promise.all([
             parseSummary(page),

@@ -4,6 +4,7 @@ import { parseInTheBox } from './inTheBox';
 import { parseGraphicsProcessor } from './graphicsProcessor';
 import { parseCoresAndClocks } from './coresAndClocks';
 import { parseBoardDesign } from './boardDesign';
+import { expandSection } from '../utils';
 import { Hardware } from '../types';
 
 /**
@@ -27,19 +28,8 @@ export async function parseHardware(page: Page): Promise<Hardware> {
         const buttonSelector = '#hardware > div > button';
         const isOpenSelector = '#hardware-summary';
 
-        const button = await page.$(buttonSelector);
-        const isOpen = await page.$(isOpenSelector);
-
-        // Check if the summary is not already open
-        if (!isOpen) {
-            if (button) {
-                await button.click();
-                await page.waitForSelector(isOpenSelector, { timeout: 1000 });
-            } else {
-                console.log("Button to expand hardware not found.");
-                return hardware; // Return null initialization if button not found
-            }
-        }
+        const hardwareSectionName = "Hardware Section"; // Human-readable name for logging
+        const result = await expandSection(page, buttonSelector, isOpenSelector, hardwareSectionName);
 
         const [summary, inTheBox, graphicsProcessor, coresAndClocks, boardDesign] = await Promise.all([
             parseHardwareSummary(page),

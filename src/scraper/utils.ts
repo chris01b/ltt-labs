@@ -62,3 +62,53 @@ export async function getSpecsObject(page: Page, specsSelector: string): Promise
         return items;
     });
 }
+
+export async function expandSection(
+    page: Page,
+    buttonSelector: string,
+    isOpenSelector: string,
+    sectionName: string,
+    retries: number = 3,
+    delay: number = 1500, // Manual optimal timeout to wait for the section to expand
+    debug: boolean = false
+): Promise<boolean> {
+    const button = await page.$(buttonSelector);
+    let isOpen = await page.$(isOpenSelector);
+
+    // If the section is already open, return true immediately
+    // So far, no sections automatically open upon page load
+    if (isOpen) {
+        debug && console.log(`${sectionName} is already open.`);
+        return true;
+    }
+
+    // If the button doesn't exist, log and return false
+    // Shouldn't happen on any existing pages
+    if (!button) {
+        console.log(`Button to expand ${sectionName} not found.`);
+        return false;
+    }
+
+    // Attempt to click the button and check the result
+    for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+            await button.click();
+        } catch (error) {
+            debug && console.log(`Failed to click ${sectionName} button on attempt ${attempt + 1}, retrying...`);
+        }
+        try {
+            await page.waitForSelector(isOpenSelector, { timeout: delay });
+            isOpen = await page.$(isOpenSelector);
+            if (isOpen) {
+                debug && console.log(`${sectionName} successfully expanded on attempt ${attempt + 1}.`);
+                return true;
+            }
+        } catch (error) {
+            debug && console.log(`Attempt ${attempt + 1} to expand ${sectionName} failed, retrying...`);
+        }
+    }
+
+    // If all attempts fail
+    console.log(`Failed to expand ${sectionName} after maximum retries.`);
+    return false;
+}
