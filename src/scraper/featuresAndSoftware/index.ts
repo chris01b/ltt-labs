@@ -26,14 +26,17 @@ export async function parseFeaturesAndSoftware(page: Page): Promise<FeaturesAndS
         const isOpenSelector = '#features-software-summary';
 
         const button = await page.$(buttonSelector);
+        const isOpen = await page.$(isOpenSelector);
 
-        if (button) {
-            await button.click();
-
-            await page.waitForSelector(isOpenSelector, { timeout: 1000 });
-        } else {
-            console.log("Button to expand featuresAndSoftware summary not found.");
-            return featuresAndSoftware; // return null initialization
+        // Check if the summary is not already open
+        if (!isOpen) {
+            if (button) {
+                await button.click();
+                await page.waitForSelector(isOpenSelector, { timeout: 1000 });
+            } else {
+                console.log("Button to expand features & software not found.");
+                return featuresAndSoftware; // Return null initialization if button not found
+            }
         }
 
         const [summary, supportedFeatures, encodeDecode, oemTechnologies] = await Promise.all([

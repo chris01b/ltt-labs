@@ -28,14 +28,17 @@ export async function parseHardware(page: Page): Promise<Hardware> {
         const isOpenSelector = '#hardware-summary';
 
         const button = await page.$(buttonSelector);
+        const isOpen = await page.$(isOpenSelector);
 
-        if (button) {
-            await button.click();
-
-            await page.waitForSelector(isOpenSelector, { timeout: 1000 });
-        } else {
-            console.log("Button to expand hardware summary not found.");
-            return hardware; // return null initialization
+        // Check if the summary is not already open
+        if (!isOpen) {
+            if (button) {
+                await button.click();
+                await page.waitForSelector(isOpenSelector, { timeout: 1000 });
+            } else {
+                console.log("Button to expand hardware not found.");
+                return hardware; // Return null initialization if button not found
+            }
         }
 
         const [summary, inTheBox, graphicsProcessor, coresAndClocks, boardDesign] = await Promise.all([
