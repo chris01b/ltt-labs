@@ -1,3 +1,6 @@
+import { GamingPerformanceTestData } from "./gamingPerformance";
+import { RayTracingPerformanceTestData } from "./rayTracingPerformance";
+
 export interface GPUData {
     name: string;
     url: string;
@@ -66,6 +69,12 @@ export interface EncodeDecode {
 
 export type OemTechnologies = Array<string>;
 
+export interface Performance {
+    summary: string | null;
+    gamingPerformance: GamingPerformanceTestData[] | null;
+    rayTracingPerformance: RayTracingPerformanceTestData[]| null;
+}
+
 export interface GPUProductDetails {
     name: string | null;
     author: string | null;
@@ -78,11 +87,7 @@ export interface GPUProductDetails {
     links: LinkDetails; // TODO: Make this accurate
     hardware: Hardware;
     featuresAndSoftware: FeaturesAndSoftware;
-    performance: {
-        summary: string;
-        gamingPerformance: Record<string, Record<string, string>>;
-        rayTracingPerformance: Record<string, Record<string, string>>;
-    };
+    performance: Performance;
     productivityAndEfficiency: {
         productivityTasks: Record<string, string>;
         syntheticScores: Record<string, string>;
