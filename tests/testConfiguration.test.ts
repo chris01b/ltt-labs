@@ -26,19 +26,31 @@ describe('Test Configuration Scraper', () => {
                 });
             });
         });
+
+        describe('Test Bench Content', () => {
+            it('should correctly extract the setup', () => {
+                expect(testConfiguration?.testBench).toHaveProperty('CPU');
+                expect(testConfiguration?.testBench?.['CPU']).toEqual('AMD Ryzen 7 7800X3D');
+            });
+        });
     });
 
     describe('Invalid GPU Article', () => {
-        let nulltestConfiguration: TestConfiguration | null = null;
+        let nullTestConfiguration: TestConfiguration | null = null;
 
         beforeAll(async () => {
             await page.goto('https://www.lttlabs.com/articles/gpu/invalid-gpu', { waitUntil: 'networkidle2' });
-            nulltestConfiguration = await parseTestConfiguration(page);
+            nullTestConfiguration = await parseTestConfiguration(page);
         });
 
         // Summary
         it('should handle the absence of the button or summary content gracefully', async () => {
-            expect(nulltestConfiguration?.summary).toBeNull();
+            expect(nullTestConfiguration?.summary).toBeNull();
+        });
+
+        // Test Bench
+        it('should return null when supported features section is missing', () => {
+            expect(nullTestConfiguration?.testBench).toBeNull();
         });
     });
 });

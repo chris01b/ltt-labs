@@ -5,7 +5,7 @@ import puppeteer, { Browser, Page } from 'puppeteer';
  * This function is typically used to set up a Puppeteer environment for further navigation and interaction with web pages.
  *
  * @param {boolean} [headless=false] - Whether or not to open the browser in headless mode.
- * @returns {Promise<{browser: Browser; page: Page}>} - An object containing the Puppeteer Browser and Page instances.
+ * @returns {Promise<{browser: Browser; page: Page}>} An object containing the Puppeteer Browser and Page instances.
  */
 export async function initializePage(headless: boolean = false): Promise<{ browser: Browser; page: Page }> {
     const browser = await puppeteer.launch({ headless });
@@ -69,37 +69,46 @@ export async function getSpecsList(page: Page, specsSelector: string): Promise<s
 }
 
 /**
- * Extracts specifications and returns them as a key-value object.
+ * Extracts specifications from a page and returns them as a key-value object.
  *
  * @param {Page} page - The Puppeteer Page object used for the query.
  * @param {string} specsSelector - The CSS selector for the section from which to extract specifications.
+ * @param {boolean} [containsLinks=false] - Whether the specifications might contain links.
  * @returns {Promise<{[key: string]: string}>} An object containing key-value pairs of specifications.
  */
-export async function getSpecsObject(page: Page, specsSelector: string): Promise<{ [key: string]: string }> {
-    return await page.$$eval(specsSelector, divs => {
+export async function getSpecsObject(page: Page, specsSelector: string, containsLinks: boolean = false): Promise<{ [key: string]: string }> {
+    return page.$$eval(specsSelector, (divs, containsLinks) => {
         const items: { [key: string]: string } = divs.reduce((acc: { [key: string]: string }, div) => {
-            // Getting the key from the first child div
             const keyNode = div.querySelector('div.font-semibold');
             const key = keyNode ? keyNode.textContent?.trim() : null;
-    
-            // Get all text nodes directly under the current div that are immediate siblings of the keyNode
+            
             let value = '';
-            const childNodes = Array.from(div.childNodes);
-            childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    value += node.textContent?.trim();
-                }
-            });
-    
-            // Adding key-value pair to the accumulator
+            if (containsLinks) {
+                const linkElement = div.querySelector('a');
+                value = linkElement?.textContent?.trim() ?? '';
+                // Add link in parentheses if available
+                // if (linkElement && linkElement.getAttribute('href')) {
+                //     value += ` (${linkElement.getAttribute('href')})`;
+                // }
+            } else {
+                const childNodes = Array.from(div.childNodes);
+                childNodes.forEach(node => {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        value += node.textContent?.trim();
+                    }
+                });
+            }
+
             if (key && value) {
                 acc[key] = value;
             }
             return acc;
         }, {});
+
         return items;
-    });
+    }, containsLinks);
 }
+
 
 /**
  * Attempts to expand a collapsible section on a webpage by clicking a specified button and waiting for a content section to become visible. 
@@ -113,7 +122,7 @@ export async function getSpecsObject(page: Page, specsSelector: string): Promise
  * @param {number} [retries=3] - The maximum number of attempts to try expanding the section if not successful on the first try.
  * @param {number} [delay=1500] - The time in milliseconds to wait for the section to expand before considering the attempt as failed.
  * @param {boolean} [debug=false] - Flag to enable detailed logging of each operation step and failure, useful for debugging.
- * @returns {Promise<boolean>} - A promise that resolves to `true` if the section was successfully expanded, or `false` if all attempts failed.
+ * @returns {Promise<boolean>} A promise that resolves to `true` if the section was successfully expanded, or `false` if all attempts failed.
  */
 export async function expandSection(
     page: Page,

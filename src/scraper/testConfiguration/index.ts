@@ -1,6 +1,7 @@
 import { Page } from 'puppeteer';
 import { expandSection } from '../utils';
 import { parseSummary } from './summary';
+import { parseTestBench } from './testBench';
 import { TestConfiguration } from '../types';
 
 /**
@@ -24,13 +25,15 @@ export async function parseTestConfiguration(page: Page): Promise<TestConfigurat
         const testConfigurationSectionName = "Test Configuration";
         const result = await expandSection(page, buttonSelector, isOpenSelector, testConfigurationSectionName);
 
-        const [summary] = await Promise.all([
+        const [summary, testBench] = await Promise.all([
             parseSummary(page),
+            parseTestBench(page),
         ]);
 
         return testConfiguration = {
             ...testConfiguration,
             summary,
+            testBench,
         };
     } catch (error) {
         console.error(`Error fetching test configuration summary: ${error}`);
