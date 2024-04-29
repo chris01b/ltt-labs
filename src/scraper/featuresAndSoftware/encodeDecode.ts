@@ -16,7 +16,6 @@ export async function parseEncodeDecode(page: Page): Promise<EncodeDecode | null
             console.error("Encode/Decode section not found.");
             return null;
         }
-        console.log("Encode/Decode section exists.");
         
         const specsSelector = `${encodeDecodeSelector} div.group.text-sm`;
         const specs = await getSpecsObject(page, specsSelector);

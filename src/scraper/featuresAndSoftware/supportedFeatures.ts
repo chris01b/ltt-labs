@@ -16,7 +16,6 @@ export async function parseSupportedFeatures(page: Page): Promise<SupportedFeatu
             console.error("Supported Features section not found.");
             return null;
         }
-        console.log("Supported Features section exists.");
         
         const specsSelector = `${supportedFeaturesSelector} div.group.text-sm`;
         const specs = await getSpecsObject(page, specsSelector);
