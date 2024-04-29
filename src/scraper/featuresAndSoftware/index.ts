@@ -1,5 +1,6 @@
 import { Page } from 'puppeteer';
 import { parseSummary } from './summary';
+import { parseSupportedFeatures } from './supportedFeatures';
 import { FeaturesAndSoftware } from '../types';
 
 /**
@@ -20,7 +21,7 @@ export async function parseFeaturesAndSoftware(page: Page): Promise<FeaturesAndS
     
     try {
         const buttonSelector = '#features-and-software > div > button';
-        const isOpenSelector = '#features-software-summary .text-base';
+        const isOpenSelector = '#features-software-summary';
 
         const button = await page.$(buttonSelector);
 
@@ -33,13 +34,15 @@ export async function parseFeaturesAndSoftware(page: Page): Promise<FeaturesAndS
             return featuresAndSoftware; // return null initialization
         }
 
-        const [summary] = await Promise.all([
+        const [summary, supportedFeatures] = await Promise.all([
             parseSummary(page),
+            parseSupportedFeatures(page)
         ]);
 
         return featuresAndSoftware = {
             ...featuresAndSoftware,
-            summary
+            summary,
+            supportedFeatures
         };
     } catch (error) {
         console.error(`Error fetching featuresAndSoftware summary: ${error}`);
