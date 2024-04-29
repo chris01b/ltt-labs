@@ -173,3 +173,44 @@ export async function expandSection(
     console.log(`Failed to expand ${sectionName} after maximum retries.`);
     return false;
 }
+
+/**
+ * Extracts structured information from titled paragraphs on a webpage.
+ * Each title is followed by related content, which is collated and returned as an object.
+ * Returns null if no valid elements are found.
+ *
+ * @param {Page} page - The Puppeteer Page object from which to fetch the data.
+ * @param {string} sectionSelector - The CSS selector for the container of titled paragraphs.
+ * @returns {Promise<{ [key: string]: any } | null>} An object with keys as titles and values as concatenated text content, or null if no elements match.
+ */
+export async function getTitledParagraphsData(page: Page, sectionSelector: string): Promise<{ [key: string]: any } | null> {
+    return page.$$eval(sectionSelector, divs => {
+        if (divs.length === 0) {
+            return null; // Return null immediately if no divs are found
+        }
+
+        const data: { [key: string]: any } = divs.reduce((acc: { [key: string]: any }, div) => {
+            // Extract the title from the first child assumed to be the title div
+            const titleDiv = div.querySelector('div.font-semibold') || div.querySelector('div.inline-flex');
+            const title = titleDiv ? titleDiv.textContent?.trim() : null;
+            
+            // Concatenate all text spans under the div following the title div
+            const contentDiv = div.querySelector('div:nth-child(2)');
+            let content = '';
+            if (contentDiv) {
+                const spans = contentDiv.querySelectorAll('span');
+                spans.forEach(span => {
+                    content += span.textContent?.trim() + ' ';
+                });
+                content = content.trim();  // Remove the extra space at the end
+            }
+
+            if (title && content) {
+                acc[title] = content;
+            }
+            return acc;
+        }, {});
+
+        return Object.keys(data).length > 0 ? data : null;  // Check if the object is empty and return null if so
+    });
+}

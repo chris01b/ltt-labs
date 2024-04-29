@@ -13,7 +13,7 @@ export async function parseTestBench(page: Page): Promise<TestBench | null> {
         const testBenchSelector = '#test-bench';
         const sectionExists = await page.$(testBenchSelector) !== null;
         if (!sectionExists) {
-            console.error("Test bench section not found.");
+            console.log("Test bench section not found.");
             return null;
         }
         

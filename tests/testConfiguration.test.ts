@@ -33,6 +33,15 @@ describe('Test Configuration Scraper', () => {
                 expect(testConfiguration?.testBench?.['CPU']).toEqual('AMD Ryzen 7 7800X3D');
             });
         });
+
+        describe('Tested Settings Content', () => {
+            describe('Test Configuration Tested Settings', () => {
+                it('should correctly extract the test configuration tested settings', async () => {
+                    expect(testConfiguration?.testedSettings).toHaveProperty('Drivers');
+                    expect(testConfiguration?.testedSettings?.['Drivers']).toContain('AMD GPU 23.12.1');  // Check for specific expected content in the summary
+                });
+            });
+        });
     });
 
     describe('Invalid GPU Article', () => {
@@ -51,6 +60,11 @@ describe('Test Configuration Scraper', () => {
         // Test Bench
         it('should return null when supported features section is missing', () => {
             expect(nullTestConfiguration?.testBench).toBeNull();
+        });
+
+        // Tested Settings
+        it('should handle the absence of the button or summary content gracefully', async () => {
+            expect(nullTestConfiguration?.testedSettings).toBeNull();
         });
     });
 });
