@@ -53,7 +53,7 @@ export interface FeaturesAndSoftware {
     summary: string | null;
     supportedFeatures: SupportedFeatures | null;
     encodeDecode: EncodeDecode | null;
-    oemTechnologies: oemTechnologies | null;
+    oemTechnologies: OemTechnologies | null;
 }
 
 export interface SupportedFeatures {
@@ -64,7 +64,7 @@ export interface EncodeDecode {
     [key: string]: any;
 }
 
-type oemTechnologies = Array<string>;
+export type OemTechnologies = Array<string>;
 
 export interface GPUProductDetails {
     name: string | null;

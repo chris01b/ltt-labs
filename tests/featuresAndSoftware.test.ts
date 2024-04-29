@@ -1,7 +1,7 @@
 import { parseFeaturesAndSoftware } from '../src/scraper/featuresAndSoftware';
 import { FeaturesAndSoftware } from '../src/scraper/types';
 
-describe('featuresAndSoftware Scraper', () => {
+describe('Features & Software Scraper', () => {
     let page = global.page;
 
     describe('Valid GPU Article', () => {
@@ -40,6 +40,13 @@ describe('featuresAndSoftware Scraper', () => {
                 expect(featuresAndSoftware?.encodeDecode?.['VP9']).toEqual('Yes');
             });
         });
+
+        describe('OEM Technologies Content', () => {
+            it('should correctly extract specifications', () => {
+                expect(featuresAndSoftware?.oemTechnologies?.length).toEqual(7);
+                expect(featuresAndSoftware?.oemTechnologies?.[0]).toEqual('NVIDIA Deep Learning Super Sampling 3 (DLSS 3)');
+            });
+        });
     });
 
     describe('Invalid GPU Article', () => {
@@ -63,6 +70,11 @@ describe('featuresAndSoftware Scraper', () => {
         // Encode/Decode
         it('should return null when encode/decode section is missing', () => {
             expect(nullfeaturesAndSoftware?.encodeDecode).toBeNull();
+        });
+
+        // OEM Technologies
+        it('should return null when OEM technologies section is missing', () => {
+            expect(nullfeaturesAndSoftware?.oemTechnologies).toBeNull();
         });
     });
 });
