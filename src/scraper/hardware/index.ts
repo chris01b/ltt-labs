@@ -25,7 +25,7 @@ export async function parseHardware(page: Page): Promise<Hardware> {
     
     try {
         const buttonSelector = '#hardware > div > button';
-        const isOpenSelector = '#hardware-summary .text-base';
+        const isOpenSelector = '#hardware-summary';
 
         const button = await page.$(buttonSelector);
 
