@@ -1,5 +1,6 @@
 import { Page } from 'puppeteer';
 import { Performance } from '../types';
+import { parseSummary } from './summary';
 
 /**
  * Extracts the performance from the specified webpage after simulating a button click
@@ -34,10 +35,13 @@ export async function parsePerformance(page: Page): Promise<Performance> {
             }
         }
 
-        // const [] = await Promise.all([]);
+        const [summary] = await Promise.all([
+            parseSummary(page),
+        ]);
 
         return performance = {
-            ...performance
+            ...performance,
+            summary,
         };
     } catch (error) {
         console.error(`Error fetching performance: ${error}`);

@@ -6,6 +6,7 @@ import { parseOverview } from './gpuDetails/overview';
 import { parseArticleInfo } from './gpuDetails/articleInfo';
 import { parseHardware } from './hardware';
 import { parseFeaturesAndSoftware } from './featuresAndSoftware';
+import { parsePerformance } from './performance';
 
 /**
  * Fetches and extracts detailed information about GPUs from their respective detail pages.
@@ -18,13 +19,14 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
     const { browser, page } = await initializePage();
     await page.goto(url, { waitUntil: 'networkidle2' });
 
-    const [whatYouNeedToKnow, links, overview, articleInfo, hardware, featuresAndSoftware] = await Promise.all([
+    const [whatYouNeedToKnow, links, overview, articleInfo, hardware, featuresAndSoftware, performance] = await Promise.all([
         parseWhatYouNeedToKnow(page),
         parseLinks(page),
         parseOverview(page),
         parseArticleInfo(page),
         parseHardware(page),
         parseFeaturesAndSoftware(page),
+        parsePerformance(page),
     ]);
 
     await browser.close();
@@ -41,11 +43,7 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
         links: links,
         hardware: hardware,
         featuresAndSoftware: featuresAndSoftware,
-        performance: {
-            summary: "",
-            gamingPerformance: {},
-            rayTracingPerformance: {},
-        },
+        performance: performance,
         productivityAndEfficiency: {
             productivityTasks: {},
             syntheticScores: {},
