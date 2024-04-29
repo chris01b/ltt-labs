@@ -7,12 +7,12 @@ import { parseBoardDesign } from './boardDesign';
 import { Hardware } from '../types';
 
 /**
- * Extracts the hardware summary from the specified webpage after simulating a button click
- * that reveals the hardware summary content. Handles dynamic content with increased timeout
+ * Extracts the hardware data from the specified webpage after simulating a button click
+ * that reveals the hardware data. Handles dynamic content with increased timeout
  * and additional diagnostics.
  * 
  * @param page The Puppeteer Page object representing the currently loaded webpage.
- * @returns The hardware summary as a string if found, otherwise returns null.
+ * @returns The hardware data if found, otherwise returns null.
  */
 export async function parseHardware(page: Page): Promise<Hardware> {
     let hardware: Hardware = {

@@ -3,7 +3,7 @@ export interface GPUData {
     url: string;
 }
 
-export type LinkDetails = Record<string, string>;
+export type LinkDetails = Record<string, string>; // TODO: Make this accurate
 
 export interface ArticleInfo {
     title: string | null;
@@ -49,6 +49,23 @@ export interface BoardDesign {
     [key: string]: any;
 }
 
+export interface FeaturesAndSoftware {
+    summary: string | null;
+    supportedFeatures: SupportedFeatures | null;
+    encodeDecode: EncodeDecode | null;
+    oemTechnologies: oemTechnologies | null;
+}
+
+export interface SupportedFeatures {
+    [key: string]: any;
+}
+
+export interface EncodeDecode {
+    [key: string]: any;
+}
+
+type oemTechnologies = Array<string>;
+
 export interface GPUProductDetails {
     name: string | null;
     author: string | null;
@@ -58,18 +75,9 @@ export interface GPUProductDetails {
     goodPoints: string[] | undefined;
     badPoints: string[] | undefined;
     otherPoints: string[] | undefined;
-    links: LinkDetails;
-    hardwareSummary: string | null;
-    inTheBox: InTheBox | null;
-    graphicsProcessor: GraphicsProcessor | null;
-    coresAndClocks: CoresAndClocks | null;
-    boardDesign: BoardDesign | null;
-    featuresAndSoftware: {
-        summary: string;
-        supportedFeatures: Record<string, string>;
-        encodeDecode: Record<string, string>;
-        oemTechnologies: string[];
-    };
+    links: LinkDetails; // TODO: Make this accurate
+    hardware: Hardware;
+    featuresAndSoftware: FeaturesAndSoftware;
     performance: {
         summary: string;
         gamingPerformance: Record<string, Record<string, string>>;

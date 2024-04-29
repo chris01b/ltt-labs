@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { getImagesData, getSpecsList } from './utils';
+import { getImagesData, getSpecsList } from '../utils';
 import { InTheBox } from '../types';
 
 /**

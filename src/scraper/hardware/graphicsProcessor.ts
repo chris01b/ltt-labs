@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { getImagesData, getSpecsObject } from './utils';
+import { getImagesData, getSpecsObject } from '../utils';
 import { GraphicsProcessor } from '../types';
 
 /**

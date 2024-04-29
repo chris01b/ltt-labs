@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { getSummaryData } from './utils';
+import { getSummaryData } from '../utils';
 
 /**
  * Extracts the hardware summary from the specified webpage after simulating a button click

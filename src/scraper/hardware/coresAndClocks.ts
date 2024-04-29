@@ -1,5 +1,5 @@
 import { Page } from 'puppeteer';
-import { getSpecsObject } from './utils';
+import { getSpecsObject } from '../utils';
 import { CoresAndClocks } from '../types';
 
 /**
