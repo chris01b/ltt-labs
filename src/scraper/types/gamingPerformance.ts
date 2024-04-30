@@ -1,5 +1,5 @@
 // Enum for the list of games
-enum Game {
+export enum Game {
     Overall = "Overall",
     AtomicHeart = "Atomic Heart",
     Cyberpunk2077 = "Cyberpunk 2077",
@@ -12,14 +12,14 @@ enum Game {
 }
 
 // Enum for the list of resolutions
-enum Resolution {
+export enum Resolution {
     R1080 = 1080,
     R1440 = 1440,
     R2160 = 2160
 }
 
 // Interface for the FPS data points
-interface DataPoint {
+export interface DataPoint {
     averageFPS: number;
     onePercentLowFPS: number;
 }

@@ -1,4 +1,5 @@
 import { parsePerformance } from '../src/scraper/performance';
+import { parseGamingPerformance } from '../src/scraper/performance/gamingPerformance';
 import { Performance } from '../src/scraper/types';
 
 describe('Performance Scraper', () => {
@@ -24,6 +25,13 @@ describe('Performance Scraper', () => {
                     expect(typeof performanceSummary).toBe('string');
                     expect(performanceSummary).toContain('RTX 4080');  // Check for specific expected content in the summary
                 });
+            });
+        });
+
+        describe('Gaming Performance Content', () => {
+            it('should correctly extract the performance summary', async () => {
+                const gamingPerformance = await parseGamingPerformance(page, 'GeForce RTX 4080 SUPER');
+                expect(gamingPerformance).toBeTruthy();
             });
         });
     });
