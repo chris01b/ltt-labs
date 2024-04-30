@@ -22,6 +22,11 @@ export enum Resolution {
 export interface DataPoint {
     averageFPS: number;
     onePercentLowFPS: number;
+    minFPS?: number;
+    maxFPS?: number;
+    percent99FPS?: number;
+    percent95FPS?: number;
+    percent5FPS?: number;
 }
 
 // Interface for performance data for a specific game and resolution

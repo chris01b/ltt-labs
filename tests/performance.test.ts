@@ -30,11 +30,26 @@ describe('Performance Scraper', () => {
         });
 
         describe('Gaming Performance Content', () => {
-            it('should correctly extract the performance summary', async () => {
-                const gamingPerformance = await parseGamingPerformance(page, 'GeForce RTX 4080 SUPER');
-                expect(gamingPerformance).toBeTruthy();
+            it('should correctly extract performance data for Atomic Heart', async () => {
+                const gamingPerformance = performance?.gamingPerformance;
+                const atomicHeartData = gamingPerformance?.find(data => data.game === "Atomic Heart" && data.resolution === 2160);
+        
+                expect(atomicHeartData).toBeDefined();
+                expect(atomicHeartData?.fpsData.averageFPS).toEqual(91);
+                expect(atomicHeartData?.fpsData.onePercentLowFPS).toEqual(79);
+            });
+
+            it('should correctly extract performance data for Cyberpunk', async () => {
+                const gamingPerformance = performance?.gamingPerformance;
+                const cyberpunkData1080 = gamingPerformance?.find(data => data.game === "Cyberpunk 2077" && data.resolution === 1080);
+                const cyberpunkData2160 = gamingPerformance?.find(data => data.game === "Cyberpunk 2077" && data.resolution === 2160);
+        
+                expect(cyberpunkData1080).toBeDefined();
+                expect(cyberpunkData1080?.fpsData.averageFPS).toEqual(181);
+                expect(cyberpunkData2160?.fpsData.averageFPS).toEqual(54);
             });
         });
+        
     });
 
     describe('Invalid GPU Article', () => {
