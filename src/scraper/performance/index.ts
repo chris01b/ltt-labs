@@ -1,8 +1,9 @@
 import { Page } from 'puppeteer';
-import { Performance } from '../types';
 import { expandSection } from '../utils';
 import { parseSummary } from './summary';
 import { parseGamingPerformance } from './gamingPerformance';
+import { Performance } from '../types';
+import { Game } from '../types/gamingPerformance';
 
 /**
  * Extracts the performance from the specified webpage after simulating a button click
@@ -29,7 +30,7 @@ export async function parsePerformance(page: Page): Promise<Performance> {
         const result = await expandSection(page, buttonSelector, isOpenSelector, performanceSectionName);
 
         const summary = await parseSummary(page);
-        const gamingPerformance = await parseGamingPerformance(page, 'GeForce RTX 4080 SUPER');
+        const gamingPerformance = await parseGamingPerformance(page, 'GeForce RTX 4080 SUPER', Game.Overall);
 
         return performance = {
             ...performance,

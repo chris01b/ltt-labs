@@ -50,6 +50,52 @@ async function waitForChartToLoad(page: Page, chartSelector: string, maxAttempts
     }
 }
 
+type DropdownType = 'game' | 'resolution';
+
+/**
+ * Selects an item from a dropdown within the gaming performance section on the page. 
+ * It handles both game and resolution dropdowns based on the specified type.
+ * 
+ * @param {Page} page - The Puppeteer Page object representing the browser page.
+ * @param {DropdownType} dropdownType - Specifies the type of dropdown to interact with. Can be either 'game' or 'resolution'.
+ * @param {Game | Resolution} selection - The item to select from the dropdown, which can be either a game or a resolution.
+ * @throws {Error} Throws an error if the specified dropdown button or the desired selection is not found.
+ * 
+ * This function clicks on the specified dropdown button within the #gaming-performance section,
+ * waits for the dropdown menu to become visible, and then selects the specified item.
+ * The function utilizes indices to determine which dropdown button to click: '0' for games and '1' for resolutions.
+ */
+async function selectFromDropdown(page: Page, dropdownType: DropdownType, selection: Game | Resolution): Promise<void> {
+    // Define the base selector for dropdown buttons within the gaming-performance section
+    const dropdownSelector = '#gaming-performance [id^="headlessui-popover-button-"]';
+    const dropdownButtons = await page.$$(dropdownSelector);
+
+    // Determine the index based on dropdownType
+    const index = dropdownType === 'game' ? 0 : 1;
+
+    // Check if the button at the desired index exists and click it
+    if (dropdownButtons.length > index) {
+        await dropdownButtons[index].click();
+    } else {
+        throw new Error(`${dropdownType} dropdown button not found.`);
+    }
+
+    // Wait for the corresponding dropdown panel to become visible
+    const dropdownPanelSelector = `#gaming-performance [id^="headlessui-popover-panel-"]`;
+    await page.waitForSelector(dropdownPanelSelector, { visible: true });
+
+    // Click the button with the specific game or resolution name within the dropdown panel
+    const itemSelector = `${dropdownPanelSelector} button[type="button"]`;
+    await page.$$eval(itemSelector, (buttons, selection) => {
+        const selectedItemButton = buttons.find(button => button.textContent?.trim() === selection);
+        if (selectedItemButton) {
+            selectedItemButton.click();
+        } else {
+            throw new Error(`Selection '${selection}' not found in dropdown.`);
+        }
+    }, selection.toString());
+}
+
 /**
  * Fetches chart data for a specified label within a chart.
  * @param {Page} page - The Puppeteer Page instance.
@@ -94,19 +140,14 @@ async function fetchSeriesData(page: Page, chartSelector: string, seriesIndex: n
     return values[labelIndex] ?? '0'; // Default to '0' if no data found
 }
 
-/**
- * Parses and returns gaming performance data for a specific GPU model.
- * @param {Page} page - The Puppeteer Page instance.
- * @param {string} gpuModel - GPU model for which to fetch gaming performance data.
- * @returns {Promise<GamingPerformanceTestData[]>} - Array of gaming performance test data.
- */
-export async function parseGamingPerformance(page: Page, gpuModel: string): Promise<GamingPerformanceTestData[]> {
+export async function parseGamingPerformance(page: Page, gpuModel: string, gameName: Game): Promise<GamingPerformanceTestData[]> {
     try {
         await waitForChartToLoad(page, '#gaming-performance');
+        await selectFromDropdown(page, 'resolution', Resolution.R1080);
         const data = await fetchChartData(page, '#gaming-performance', gpuModel);
         return [{
-            game: Game.Overall,  // Default game
-            resolution: Resolution.R1080,  // Default resolution (but only for some pages!)
+            game: gameName,  // Selected game
+            resolution: Resolution.R1080,  // Default resolution
             fpsData: data
         }];
     } catch (error) {

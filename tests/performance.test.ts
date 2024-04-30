@@ -1,6 +1,7 @@
 import { parsePerformance } from '../src/scraper/performance';
 import { parseGamingPerformance } from '../src/scraper/performance/gamingPerformance';
 import { Performance } from '../src/scraper/types';
+import { Game } from '../src/scraper/types/gamingPerformance';
 
 describe('Performance Scraper', () => {
     let page = global.page;
@@ -30,7 +31,7 @@ describe('Performance Scraper', () => {
 
         describe('Gaming Performance Content', () => {
             it('should correctly extract the performance summary', async () => {
-                const gamingPerformance = await parseGamingPerformance(page, 'GeForce RTX 4080 SUPER');
+                const gamingPerformance = await parseGamingPerformance(page, 'GeForce RTX 4080 SUPER', Game.Overall);
                 expect(gamingPerformance).toBeTruthy();
             });
         });
