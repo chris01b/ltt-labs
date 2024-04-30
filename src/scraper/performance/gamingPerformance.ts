@@ -57,7 +57,6 @@ async function fetchSeriesData(page: Page, chartSelector: string, seriesIndex: n
     return values[labelIndex] ?? '0'; // Default to '0' if no data found
 }
 
-// TODO: Do not throw error when we get message "Labs did not gather this data during the initial testing phase."
 // TODO: PowerColor Hellhound AMD Radeon RX 7600 XT 16GB may not scraping properly
 // Some GPUs not have all dropdowns available to it
 // TODO: detect available games and resolutions and iterate over that Partial<Game> and Partial<Resolution>
