@@ -31,7 +31,7 @@ describe('Performance Scraper', () => {
 
         describe('Gaming Performance Content', () => {
             it('should correctly extract the performance summary', async () => {
-                const gamingPerformance = await parseGamingPerformance(page, 'GeForce RTX 4080 SUPER', Game.Overall);
+                const gamingPerformance = await parseGamingPerformance(page, 'GeForce RTX 4080 SUPER');
                 expect(gamingPerformance).toBeTruthy();
             });
         });
