@@ -26,7 +26,7 @@ async function fetchChartData(page: Page, chartSelector: string, labelToFind: st
     const labelIndex = labels.findIndex((label: string) => label === labelToFind);
 
     if (labelIndex === -1) {
-        throw new Error('Label not found');
+        throw new Error(`Label not found. Labels length: ${labels.length}, Available labels: ${labels.join(', ')}`);
     }
 
     const data = await Promise.all([
@@ -57,15 +57,22 @@ async function fetchSeriesData(page: Page, chartSelector: string, seriesIndex: n
     return values[labelIndex] ?? '0'; // Default to '0' if no data found
 }
 
+// TODO: Do not throw error when we get message "Labs did not gather this data during the initial testing phase."
+// TODO: PowerColor Hellhound AMD Radeon RX 7600 XT 16GB may not scraping properly
+// Some GPUs not have all dropdowns available to it
+// TODO: detect available games and resolutions and iterate over that Partial<Game> and Partial<Resolution>
+
 /**
  * Parses gaming performance data for a specific GPU model across all games and resolutions.
+ * This function checks for data availability and handles cases where data is not gathered.
  * @param {Page} page - The Puppeteer Page instance.
  * @param {string} gpuModel - GPU model for which to fetch performance data.
  * @returns {Promise<GamingPerformanceTestData[]>} - A promise that resolves to an array of performance test data for each game and resolution.
  */
 export async function parseGamingPerformance(page: Page, gpuModel: string): Promise<GamingPerformanceTestData[]> {
     const results: GamingPerformanceTestData[] = [];
-    // Get game and resolution keys
+    const fetchedCombinations = new Set<string>(); // Track fetched game and resolution combinations
+
     const games: Game[] = Object.keys(Game)
         .filter(key => isNaN(Number(key)))
         .map(key => Game[key as keyof typeof Game]) as Game[];
@@ -73,23 +80,31 @@ export async function parseGamingPerformance(page: Page, gpuModel: string): Prom
         .filter(key => isNaN(Number(key)))
         .map(key => Resolution[key as keyof typeof Resolution]) as Resolution[];
 
-    await waitForChartToLoad(page, '#gaming-performance');
-
-    // Iterate over all games and resolutions to fetch performance data
+    const chartLoadStatus = await waitForChartToLoad(page, '#gaming-performance', 1500);
     for (const game of games) {
         for (const resolution of resolutions) {
+            const combinationKey = `${game}-${resolution}`;
+            if (fetchedCombinations.has(combinationKey)) {
+                console.log(`Skipping already fetched combination: ${game} at resolution ${resolution}`);
+                continue; // Skip fetching if already done
+            }
+
             try {
-                // Select game and resolution from dropdowns
                 await selectFromDropdown(page, 'game', game);
                 await selectFromDropdown(page, 'resolution', resolution);
 
-                const data = await fetchChartData(page, '#gaming-performance', gpuModel);
-
-                results.push({
-                    game,
-                    resolution,
-                    fpsData: data
-                });
+                const chartLoadStatus = await waitForChartToLoad(page, '#gaming-performance');
+                if (chartLoadStatus === 0) { // Chart loaded successfully
+                    const data = await fetchChartData(page, '#gaming-performance', 'GeForce RTX 4080 SUPER'); // Make sure to handle dynamic labels
+                    results.push({
+                        game,
+                        resolution,
+                        fpsData: data
+                    });
+                    fetchedCombinations.add(combinationKey); // Mark this combination as fetched
+                } else if (chartLoadStatus === 2) {
+                    console.log(`Data not available for ${game} at resolution ${resolution} for ${gpuModel}.`);
+                }
             } catch (error) {
                 console.error(`Error fetching data for ${game} at resolution ${resolution} for ${gpuModel}: ${error}`);
             }
@@ -97,4 +112,3 @@ export async function parseGamingPerformance(page: Page, gpuModel: string): Prom
     }
     return results;
 }
-

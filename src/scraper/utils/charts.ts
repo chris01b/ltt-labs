@@ -16,27 +16,36 @@ async function scrollToElement(page: Page, selector: string): Promise<void> {
 }
 
 /**
- * Waits for a chart to load by attempting to scroll to the chart and find a specific element within it, up to a maximum number of attempts.
+ * Waits for a chart to load by attempting to scroll to the chart and find a specific element within it, or detects a message indicating data unavailability.
  * @param {Page} page - The Puppeteer Page instance.
  * @param {string} chartSelector - CSS selector for the chart container.
  * @param {number} maxAttempts - Maximum number of attempts to try loading the chart (default is 10).
- * @returns {Promise<void>}
+ * @returns {Promise<string>} - Returns 0 if the chart loads successfully, 2 if the data is not available, or throws an error if neither condition is met after maximum attempts.
  */
-export async function waitForChartToLoad(page: Page, chartSelector: string, maxAttempts = 10): Promise<void> {
+export async function waitForChartToLoad(page: Page, chartSelector: string, timeout = 100, maxAttempts = 10): Promise<number> {
     const selector = `${chartSelector} .highcharts-series-0 > g.highcharts-data-label > text`;
+    const unavailableSelector = `${chartSelector} div.bg-custom-chart-bg p`;
     let attempts = 0;
     while (attempts < maxAttempts) {
         await scrollToElement(page, chartSelector);
         try {
-            await page.waitForSelector(selector, { visible: true, timeout: 1500 });
-            return; // If the selector is found and visible, exit the function
+            await page.waitForSelector(selector, { visible: true, timeout });
+            return 0; // If the selector is found and visible, exit the function
         } catch (error) {
+            // Check if the unavailability message is visible instead
+            const unavailableMessage = await page.$$eval(unavailableSelector, elements => 
+                elements.map(element => element.textContent?.includes("Labs did not gather this data during the initial testing phase.")).includes(true)
+            );
+            if (unavailableMessage) {
+                return 2; // If the data is confirmed not available, exit the function
+            }
             attempts++;
             if (attempts === maxAttempts) {
                 throw new Error(`Chart not found or is not visible after ${maxAttempts} attempts: ${error}`);
             }
         }
     }
+    return 1; // If no errors and no data found, exit the function with an error code
 }
 
 type DropdownType = 'game' | 'resolution';

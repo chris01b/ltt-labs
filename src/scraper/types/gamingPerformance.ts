@@ -3,7 +3,7 @@ export enum Game {
     Overall = "Overall",
     AtomicHeart = "Atomic Heart",
     Cyberpunk2077 = "Cyberpunk 2077",
-    Dota2 = "Dota 2",
+    Dota2 = "DOTA 2",
     F123 = "F1 23",
     RedDeadRedemption2 = "Red Dead Redemption 2",
     Returnal = "Returnal",
