@@ -27,7 +27,7 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
         parseArticleInfo(page),
         parseHardware(page),
         parseFeaturesAndSoftware(page),
-        parsePerformance(page),
+        parsePerformance(browser, page),
         parseTestConfiguration(page)
     ]);
 

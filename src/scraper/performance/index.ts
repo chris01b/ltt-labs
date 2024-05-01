@@ -1,12 +1,11 @@
-import { Page } from 'puppeteer';
+import { Browser, Page } from 'puppeteer';
 import { expandSection } from '../utils';
 import { parseSummary } from './summary';
 import { parseGamingPerformance } from './gamingPerformance';
-import { initializePage } from '../utils';
 import { extractGamingPerformanceSessionId } from '../utils/charts';
 import { Performance } from '../types';
 
-export async function parsePerformance(page: Page): Promise<Performance> {
+export async function parsePerformance(browser: Browser, page: Page): Promise<Performance> {
     let performance: Performance = {
         summary: null,
         gamingPerformance: null,
@@ -20,17 +19,15 @@ export async function parsePerformance(page: Page): Promise<Performance> {
         // Ensure the performance section is expanded to trigger network responses
         await expandSection(page, buttonSelector, isOpenSelector, "Performance");
 
-        // Fetch session ID for gaming performance
+        // Fetch session ID for gaming performance graph data
         const sessionId = await extractGamingPerformanceSessionId(page);
         const responseUrl = `https://www.lttlabs.com/api/chart/data/gpu/gameReport/${sessionId}`;
 
         // Initialize a new page for fetching the JSON data
-        const { browser: jsonBrowser, page: jsonPage } = await initializePage();
+        const jsonPage = await browser.newPage();
         const response = await jsonPage.goto(responseUrl);
         const gamingData = await response?.json(); // Assuming the response is JSON
-
-        // Close the JSON browser after fetching data
-        await jsonBrowser.close();
+        await jsonPage.close();
 
         const summary = await parseSummary(page);
         const gamingPerformance = parseGamingPerformance(gamingData);
