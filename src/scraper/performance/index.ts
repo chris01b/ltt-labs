@@ -1,11 +1,10 @@
-import { Browser, Page } from 'puppeteer';
+import { Page } from 'puppeteer';
 import { expandSection } from '../utils';
 import { parseSummary } from './summary';
-import { parseGamingPerformance } from './gamingPerformance';
-import { extractGamingPerformanceSessionId } from '../utils/charts';
 import { Performance } from '../types';
+import { fetchAndParsePerformanceData } from './performanceData';
 
-export async function parsePerformance(browser: Browser, page: Page): Promise<Performance> {
+export async function parsePerformance(page: Page): Promise<Performance> {
     let performance: Performance = {
         summary: null,
         gamingPerformance: null,
@@ -13,32 +12,26 @@ export async function parsePerformance(browser: Browser, page: Page): Promise<Pe
     };
 
     try {
-        const buttonSelector = '#performance > div > button';
-        const isOpenSelector = '#performance-summary';
-        
-        // Ensure the performance section is expanded to trigger network responses
-        await expandSection(page, buttonSelector, isOpenSelector, "Performance");
+        // Expanding the performance section on the page
+        await expandSection(page, '#performance > div > button', '#performance-summary', "Performance");
 
-        // Fetch session ID for gaming performance graph data
-        const sessionId = await extractGamingPerformanceSessionId(page);
-        const responseUrl = `https://www.lttlabs.com/api/chart/data/gpu/gameReport/${sessionId}`;
-
-        // Initialize a new page for fetching the JSON data
-        const jsonPage = await browser.newPage();
-        const response = await jsonPage.goto(responseUrl);
-        const gamingData = await response?.json(); // Assuming the response is JSON
-        await jsonPage.close();
-
+        // Parse summary data
         const summary = await parseSummary(page);
-        const gamingPerformance = parseGamingPerformance(gamingData);
+        performance.summary = summary;
 
-        return {
-            ...performance,
-            summary,
-            gamingPerformance
-        };
+        // Fetch and parse both gaming and ray tracing performance data
+        const [gamingPerformance, rayTracingPerformance] = await fetchAndParsePerformanceData(page);
+        performance.gamingPerformance = gamingPerformance;
+        performance.rayTracingPerformance = rayTracingPerformance;
+
+        // Validate data to ensure all required parts are parsed correctly
+        if (!summary || !gamingPerformance || !rayTracingPerformance) {
+            throw new Error("Failed to parse all performance components successfully.");
+        }
+
+        return performance;
     } catch (error) {
-        console.error(`Error fetching performance: ${error}`);
+        console.error(`Error during performance parsing and aggregation: ${error}`);
         return performance;
     }
 }

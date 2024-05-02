@@ -1,5 +1,4 @@
-import { GamingPerformanceTestData } from "./gamingPerformance";
-import { RayTracingPerformanceTestData } from "./rayTracingPerformance";
+import { PerformanceTestData } from "./performance";
 import { ProductivityTestData } from "./productivity";
 import { BenchmarkTestData } from "./synthetics";
 
@@ -72,9 +71,9 @@ export interface EncodeDecode {
 export type OemTechnologies = Array<string>;
 
 export interface Performance {
-    summary: string | null;
-    gamingPerformance: GamingPerformanceTestData[] | null;
-    rayTracingPerformance: RayTracingPerformanceTestData[]| null;
+    summary?: string | null;
+    gamingPerformance: PerformanceTestData[] | null;
+    rayTracingPerformance: PerformanceTestData[]| null;
 }
 
 export interface ProductivityAndPerformance {

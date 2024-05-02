@@ -1,10 +1,9 @@
 import { parsePerformance } from '../src/scraper/performance';
-import { parseGamingPerformance } from '../src/scraper/performance/gamingPerformance';
 import { Performance } from '../src/scraper/types';
-import { Game } from '../src/scraper/types/gamingPerformance';
 
 describe('Performance Scraper', () => {
     let page = global.page;
+    let browser = global.browser;
 
     describe('Valid GPU Article', () => {
         let performance: Performance | null = null;
@@ -15,7 +14,7 @@ describe('Performance Scraper', () => {
         });
 
         it('should return an object', async () => {
-            expect(Performance).toBeTruthy();
+            expect(performance).toBeTruthy();
         });
 
         describe('Summary Content', () => {
@@ -30,7 +29,7 @@ describe('Performance Scraper', () => {
         });
 
         describe('Gaming Performance Content', () => {
-            it('should correctly extract performance data for Atomic Heart', async () => {
+            it('should correctly extract gaming performance data for Atomic Heart', async () => {
                 const gamingPerformance = performance?.gamingPerformance;
                 const atomicHeartData = gamingPerformance?.find(data => data.game === "Atomic Heart" && data.resolution === 2160);
         
@@ -39,7 +38,7 @@ describe('Performance Scraper', () => {
                 expect(atomicHeartData?.fpsData.onePercentLowFPS).toEqual(79);
             });
 
-            it('should correctly extract performance data for Cyberpunk', async () => {
+            it('should correctly extract gaming performance data for Cyberpunk', async () => {
                 const gamingPerformance = performance?.gamingPerformance;
                 const cyberpunkData1080 = gamingPerformance?.find(data => data.game === "Cyberpunk 2077" && data.resolution === 1080);
                 const cyberpunkData2160 = gamingPerformance?.find(data => data.game === "Cyberpunk 2077" && data.resolution === 2160);
@@ -47,6 +46,24 @@ describe('Performance Scraper', () => {
                 expect(cyberpunkData1080).toBeDefined();
                 expect(cyberpunkData1080?.fpsData.averageFPS).toEqual(181);
                 expect(cyberpunkData2160?.fpsData.averageFPS).toEqual(54);
+            });
+        });
+
+        describe('Ray Tracing Performance Content', () => {
+            it('should correctly extract ray tracing performance data for Cyberpunk', async () => {
+                const rayTracingPerformance = performance?.rayTracingPerformance;
+                const cyberpunkData1440 = rayTracingPerformance?.find(data => data.game === "Cyberpunk 2077" && data.resolution === 1440);
+        
+                expect(cyberpunkData1440).toBeDefined();
+                expect(cyberpunkData1440?.fpsData.averageFPS).toEqual(60);
+            });
+
+            it('should correctly extract ray tracing performance data for Returnal', async () => {
+                const rayTracingPerformance = performance?.rayTracingPerformance;
+                const returnalData1440 = rayTracingPerformance?.find(data => data.game === "Returnal" && data.resolution === 1440);
+        
+                expect(returnalData1440).toBeDefined();
+                expect(returnalData1440?.fpsData.averageFPS).toEqual(114);
             });
         });
         

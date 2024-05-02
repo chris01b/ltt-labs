@@ -8,7 +8,7 @@ describe('Article Info Scraper', () => {
     it('should extract the article title correctly', async () => {
         const articleInfo = await parseArticleInfo(global.page);
         expect(articleInfo.title).toBeTruthy();
-        expect(articleInfo.title).toMatch('Nvidia GeForce RTX 4080 SUPER 16GB');
+        expect(articleInfo.title).toMatch('NVIDIA GeForce RTX 4080 SUPER 16GB');
     });
 
     it('should extract the author and be properly formatted', async () => {

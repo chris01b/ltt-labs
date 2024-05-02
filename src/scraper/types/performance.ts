@@ -1,17 +1,21 @@
-// Enum for the list of games
 export enum Game {
     Overall = "Overall",
+    AtomicHeart = "Atomic Heart",
     Cyberpunk2077 = "Cyberpunk 2077",
+    Dota2 = "DOTA 2",
     F123 = "F1 23",
+    RedDeadRedemption2 = "Red Dead Redemption 2",
     Returnal = "Returnal",
+    RocketLeague = "Rocket League",
+    TheLastOfUsPartI = "The Last of Us Part I"
 }
 
-// Enum for the list of resolutions
 export enum Resolution {
-    R1440 = 1440
+    R1080 = 1080,
+    R1440 = 1440,
+    R2160 = 2160
 }
 
-// Interface for the FPS data points
 export interface DataPoint {
     averageFPS: number;
     onePercentLowFPS: number;
@@ -22,8 +26,7 @@ export interface DataPoint {
     percent5FPS?: number;
 }
 
-// Interface for performance data for a specific game and resolution
-export interface RayTracingPerformanceTestData {
+export interface PerformanceTestData {
     game: Game;
     resolution: Resolution;
     fpsData: DataPoint;
