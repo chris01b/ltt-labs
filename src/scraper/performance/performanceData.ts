@@ -1,6 +1,6 @@
 import { Page } from 'puppeteer';
+import { waitForChartToLoad } from '../utils/charts';
 import { PerformanceTestData, Game, Resolution } from '../types/performance';
-import { extractPerformanceSessionId, fetchJsonDataFromUrls } from '../utils/charts';
 
 export function parsePerformanceData(jsonData: any): PerformanceTestData[] {
     let performanceData: PerformanceTestData[];
@@ -28,46 +28,40 @@ export function parsePerformanceData(jsonData: any): PerformanceTestData[] {
     return performanceData;
 }
 
+/**
+ * Fetches and parses gaming and ray tracing performance data.
+ * Assumes that data loading flags have been set in the browser environment.
+ *
+ * @param {Page} page - The Puppeteer Page instance used to intercept requests.
+ * @returns {Promise<[PerformanceTestData[], PerformanceTestData[]]>} A tuple containing arrays of performance data for gaming and ray tracing.
+ */
 export async function fetchAndParsePerformanceData(page: Page): Promise<[PerformanceTestData[], PerformanceTestData[]]> {
-    const baseChartUrl = 'https://www.lttlabs.com/api/chart/data/gpu/gameReport/';
-
     try {
-        // Extract session IDs for gaming and ray tracing performance data
-        const gamingSessionId = await extractPerformanceSessionId(page, "Gaming Performance");
-        const rayTracingSessionId = await extractPerformanceSessionId(page, "Ray Tracing Performance");
 
-        // Validate session IDs before proceeding
-        if (!gamingSessionId || !rayTracingSessionId) {
-            throw new Error("Failed to extract session IDs for performance data.");
-        }
+        await waitForChartToLoad(page, '#gaming-performance', 1500);
 
-        // Construct URLs for fetching data
-        const urlsToFetch = [
-            `${baseChartUrl}${gamingSessionId}`,
-            `${baseChartUrl}${rayTracingSessionId}`
-        ];
+        // Retrieve the raw data directly from the browser context
+        const rawGamingData = await page.evaluate(() => {
+            return window.gamingPerformanceData ? JSON.stringify(window.gamingPerformanceData) : null;
+        });
 
-        // Fetch data concurrently for both gaming and ray tracing performance
-        const results = await fetchJsonDataFromUrls(page, urlsToFetch);
+        await waitForChartToLoad(page, '#ray-tracing-performance', 1500);
 
-        // Parse the fetched data
-        const gamingPerformance = parsePerformanceData(results[0]);
-        const rayTracingPerformance = parsePerformanceData(results[1]);
+        const rawRayTracingData = await page.evaluate(() => {
+            return window.rayTracingPerformanceData ? JSON.stringify(window.rayTracingPerformanceData) : null;
+        });
 
-        // Check the parsed data for completeness and correctness
+        // Parse the data in the Node.js context
+        const gamingPerformance = rawGamingData ? parsePerformanceData(JSON.parse(rawGamingData)) : [];
+        const rayTracingPerformance = rawRayTracingData ? parsePerformanceData(JSON.parse(rawRayTracingData)) : [];
+
         if (gamingPerformance.length === 0 || rayTracingPerformance.length === 0) {
             throw new Error("Parsed performance data is incomplete or incorrect.");
         }
 
         return [gamingPerformance, rayTracingPerformance];
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            console.error(`Error fetching or parsing performance data: ${error.message}`);
-            throw new Error(`Performance data processing failed: ${error.message}`);
-        } else {
-            // Handle the case where error is not an instance of Error
-            console.error('An unexpected error occurred:', error);
-            throw new Error('Performance data processing failed due to an unexpected error.');
-        }
+    } catch (error) {
+        console.error(`Error fetching or parsing performance data: ${error}`);
+        throw new Error(`Performance data processing failed: ${error instanceof Error ? error.message : "unknown error"}`);
     }
 }

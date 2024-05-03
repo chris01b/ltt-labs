@@ -73,8 +73,12 @@ describe('Performance Scraper', () => {
         let nullPerformance: Performance | null = null;
 
         beforeAll(async () => {
-            await page.goto('https://www.lttlabs.com/articles/gpu/invalid-gpu', { waitUntil: 'networkidle2' });
-            nullPerformance = await parsePerformance(page);
+            const invalidPage = await browser.newPage();
+            const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'
+            await invalidPage.setUserAgent(userAgent);
+            await invalidPage.setJavaScriptEnabled(true);
+            await invalidPage.goto('https://www.lttlabs.com/articles/gpu/invalid-gpu', { waitUntil: 'networkidle2' });
+            nullPerformance = await parsePerformance(invalidPage);
         });
 
         // Summary

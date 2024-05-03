@@ -62,7 +62,7 @@ export async function extractPerformanceHydrationData(page: Page): Promise<any> 
  * @returns {Promise<string | null>} - A promise that resolves to the session ID needed for fetching the graph data,
  *                                     or null if no session ID is found.
  */
-export async function extractPerformanceSessionId(page: Page, sectionTitle: string): Promise<string | null> {
+export async function extractPerformanceSessionId(page: Page, sectionTitle: string): Promise<string> {
     const performanceObject = await extractPerformanceHydrationData(page);
 
     // Check if the sections exist and contain the expected title
@@ -80,7 +80,7 @@ export async function extractPerformanceSessionId(page: Page, sectionTitle: stri
         }
     }
 
-    return null;
+    throw new Error(`Session ID not found for ${sectionTitle}`);
 }
 
 /**
@@ -217,4 +217,51 @@ export async function fetchJsonDataFromUrls(refererPage: Page, urls: string[]): 
     } finally {
         await browser.close();
     }
+}
+
+/**
+ * Scrolls to the element specified by the selector.
+ * @param {Page} page - The Puppeteer Page instance.
+ * @param {string} selector - CSS selector of the element to scroll into view.
+ * @returns {Promise<void>}
+ */
+async function scrollToElement(page: Page, selector: string): Promise<void> {
+    const element = await page.$(selector);
+    if (!element) {
+        throw new Error(`Element with selector ${selector} not found or is not visible.`);
+    }
+    await page.evaluate(el => el.scrollIntoView(), element);
+}
+
+/**
+ * Waits for a chart to load by attempting to scroll to the chart and find a specific element within it, or detects a message indicating data unavailability.
+ * @param {Page} page - The Puppeteer Page instance.
+ * @param {string} chartSelector - CSS selector for the chart container.
+ * @param {number} maxAttempts - Maximum number of attempts to try loading the chart (default is 10).
+ * @returns {Promise<string>} - Returns 0 if the chart loads successfully, 2 if the data is not available, or throws an error if neither condition is met after maximum attempts.
+ */
+export async function waitForChartToLoad(page: Page, chartSelector: string, timeout = 100, maxAttempts = 10): Promise<number> {
+    const selector = `${chartSelector} .highcharts-series-0 > g.highcharts-data-label > text`;
+    const unavailableSelector = `${chartSelector} div.bg-custom-chart-bg p`;
+    let attempts = 0;
+    while (attempts < maxAttempts) {
+        await scrollToElement(page, chartSelector);
+        try {
+            await page.waitForSelector(selector, { visible: true, timeout });
+            return 0; // If the selector is found and visible, exit the function
+        } catch (error) {
+            // Check if the unavailability message is visible instead
+            const unavailableMessage = await page.$$eval(unavailableSelector, elements => 
+                elements.map(element => element.textContent?.includes("Labs did not gather this data during the initial testing phase.")).includes(true)
+            );
+            if (unavailableMessage) {
+                return 2; // If the data is confirmed not available, exit the function
+            }
+            attempts++;
+            if (attempts === maxAttempts) {
+                throw new Error(`Chart not found or is not visible after ${maxAttempts} attempts: ${error}`);
+            }
+        }
+    }
+    return 1; // If no errors and no data found, exit the function with an error code
 }
