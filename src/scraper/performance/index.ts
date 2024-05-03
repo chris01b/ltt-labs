@@ -17,8 +17,8 @@ export async function parsePerformance(page: Page): Promise<Performance> {
         // Enable request interception before expanding sections
         await page.setRequestInterception(true);
 
-        const gamingSessionId = await extractSessionId(page, "Gaming Performance");
-        const rayTracingSessionId = await extractSessionId(page, "Ray Tracing Performance");
+        const gamingSessionId = await extractSessionId(page, "Gaming Performance", "performance");
+        const rayTracingSessionId = await extractSessionId(page, "Ray Tracing Performance", "performance");
 
         page.on('request', interceptedRequest => {
             interceptedRequest.continue();

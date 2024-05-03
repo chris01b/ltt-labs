@@ -7,6 +7,7 @@ import { parseArticleInfo } from './gpuDetails/articleInfo';
 import { parseHardware } from './hardware';
 import { parseFeaturesAndSoftware } from './featuresAndSoftware';
 import { parsePerformance } from './performance';
+import { parseProductivityAndEfficiency } from './productivityAndEfficiency';
 import { parseTestConfiguration } from './testConfiguration';
 
 /**
@@ -20,7 +21,7 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
     const { browser, page } = await initializePage();
     await page.goto(url, { waitUntil: 'networkidle2' });
 
-    const [whatYouNeedToKnow, links, overview, articleInfo, hardware, featuresAndSoftware, performance, testConfiguration] = await Promise.all([
+    const [whatYouNeedToKnow, links, overview, articleInfo, hardware, featuresAndSoftware, performance, productivityAndEfficiency, testConfiguration] = await Promise.all([
         parseWhatYouNeedToKnow(page),
         parseLinks(page),
         parseOverview(page),
@@ -28,6 +29,7 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
         parseHardware(page),
         parseFeaturesAndSoftware(page),
         parsePerformance(page),
+        parseProductivityAndEfficiency(page),
         parseTestConfiguration(page)
     ]);
 
@@ -46,7 +48,7 @@ export async function fetchGPUPageDetails(url: string): Promise<GPUProductDetail
         hardware: hardware,
         featuresAndSoftware: featuresAndSoftware,
         performance: performance,
-        productivityAndEfficiency: null,
+        productivityAndEfficiency: productivityAndEfficiency,
         testConfiguration: testConfiguration
     };
 }

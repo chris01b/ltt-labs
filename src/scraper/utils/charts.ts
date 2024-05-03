@@ -19,13 +19,14 @@ interface Section {
 }
 
 /**
- * Extracts performance hydration data from Next.js scripts on a page.
+ * Extracts performance hydration data from Next.js scripts on a page based on a specified hydration ID.
  * 
  * @param {Page} page - The Puppeteer Page instance.
+ * @param {string} hydrationId - The specific hydration ID to filter the data by.
  * @returns {Promise<any>} - Resolves to the performance data or null if not found.
  */
-export async function extractPerformanceHydrationData(page: Page): Promise<any> {
-    return await page.evaluate(() => {
+export async function extractHydrationData(page: Page, hydrationId: string): Promise<any> {
+    return await page.evaluate((id) => {
         let performanceData;
         try {
             performanceData = self.__next_f
@@ -44,16 +45,17 @@ export async function extractPerformanceHydrationData(page: Page): Promise<any> 
                     return null;  // Ignore lines that do not contain valid JSON
                 }
             })
-            .find(parsed => Array.isArray(parsed) && parsed.length > 3 && parsed[2] === "performance");
+            .find(parsed => Array.isArray(parsed) && parsed.length > 3 && parsed[2] === id); // Use the passed hydration ID
         } catch (error) {
-            console.log(performanceData);
-            console.error('Error extracing hydration data:', error);
+            console.log('Processed Data:', performanceData);
+            console.error('Error extracting hydration data:', error);
         }
         
         // Return the fourth element of the matched array if found
         return performanceData ? performanceData[3] : null;
-    });
+    }, hydrationId); // Pass the hydrationId to the evaluate function
 }
+
 
 /**
  * Extracts the session ID for chart request from Next.js hydration data on a page.
@@ -62,8 +64,8 @@ export async function extractPerformanceHydrationData(page: Page): Promise<any> 
  * @returns {Promise<string | null>} - A promise that resolves to the session ID needed for fetching the graph data,
  *                                     or null if no session ID is found.
  */
-export async function extractSessionId(page: Page, sectionTitle: string): Promise<string> {
-    const performanceObject = await extractPerformanceHydrationData(page);
+export async function extractSessionId(page: Page, sectionTitle: string, hydrationId: string): Promise<string> {
+    const performanceObject = await extractHydrationData(page, hydrationId);
 
     // Check if the sections exist and contain the expected title
     let section: Section | undefined;
@@ -76,7 +78,7 @@ export async function extractSessionId(page: Page, sectionTitle: string): Promis
     if (section && section.content.benchmarkGraphs.length > 0) {
         const sessionIds = section.content.benchmarkGraphs[0].sessionIds;
         if (sessionIds && sessionIds.length > 0) {
-            return sessionIds[0] as string; // Return the first session ID found
+            return sessionIds[0].trim() as string; // Return the first session ID found
         }
     }
 

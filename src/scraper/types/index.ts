@@ -1,6 +1,5 @@
 import { GameTestResult } from "./gameReport";
-import { ProductivityTestData } from "./productivity";
-import { BenchmarkTestData } from "./synthetics";
+import { NonGameReport } from "./nonGameReport";
 
 export interface GPUData {
     name: string;
@@ -77,8 +76,8 @@ export interface Performance {
 }
 
 export interface ProductivityAndEfficiency {
-    productivityTasks: ProductivityTestData[] | null;
-    syntheticScores: BenchmarkTestData[] | null;
+    productivityTasks: NonGameReport[] | null;
+    syntheticScores: NonGameReport[] | null;
 }
 
 export interface TestConfiguration {

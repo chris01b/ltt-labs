@@ -1,4 +1,4 @@
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer';
 
 /**
  * Initializes a browser session with a specific user agent, and returns the browser and page objects.
@@ -109,69 +109,100 @@ export async function getSpecsObject(page: Page, specsSelector: string, contains
     }, containsLinks);
 }
 
+/**
+ * Logs details of all elements matching a given selector on the page.
+ * 
+ * @param {Page} page - The Puppeteer Page object.
+ * @param {string} selector - The CSS selector to match elements.
+ */
+async function logElementDetails(page: Page, selector: string) {
+    const details = await page.evaluate(selector => {
+        const elements = Array.from(document.querySelectorAll(selector));
+        return elements.map((el, index) => ({
+            index: index,
+            html: el.outerHTML, // Gets the element's outer HTML
+            text: el.textContent?.trim(), // Gets the text content of the element, trimmed of whitespace
+            class: el.className, // Gets the class of the element
+            id: el.id // Gets the ID of the element
+        }));
+    }, selector);
+
+    console.log(`Details of elements matching '${selector}':`);
+    details.forEach(detail => {
+        console.log(`Index: ${detail.index}, HTML: ${detail.html}, Text: ${detail.text}, Class: ${detail.class}, ID: ${detail.id}`);
+    });
+}
 
 /**
- * Attempts to expand a collapsible section on a webpage by clicking a specified button and waiting for a content section to become visible. 
- * The function includes retries and can optionally log each attempt. It is designed to handle when the section might not 
- * immediately open due to needing to load table in some sections over the network before isOpenSelector appears.
+ * Attempts to expand a collapsible section on a webpage by clicking a specified button
+ * and waiting for a content section to become visible. This function includes retries
+ * and can optionally log each attempt. It is designed to handle scenarios where the section
+ * might not immediately open, possibly due to needing to load additional content over the network.
  *
  * @param {Page} page - The Puppeteer Page object on which the function will operate.
  * @param {string} buttonSelector - The CSS selector for the button that needs to be clicked to expand the section.
  * @param {string} isOpenSelector - The CSS selector for the element that indicates the section has been expanded.
  * @param {string} sectionName - A human-readable name for the section, used in logging and error messages.
+ * @param {boolean} [debug=false] - Flag to enable detailed logging of each operation step and failure, useful for debugging.
  * @param {number} [retries=3] - The maximum number of attempts to try expanding the section if not successful on the first try.
  * @param {number} [delay=1500] - The time in milliseconds to wait for the section to expand before considering the attempt as failed.
- * @param {boolean} [debug=false] - Flag to enable detailed logging of each operation step and failure, useful for debugging.
- * @returns {Promise<boolean>} A promise that resolves to `true` if the section was successfully expanded, or `false` if all attempts failed.
+ * @returns {Promise<boolean>} - A promise that resolves to `true` if the section was successfully expanded, or `false` if all attempts failed.
  */
 export async function expandSection(
     page: Page,
     buttonSelector: string,
     isOpenSelector: string,
     sectionName: string,
+    debug: boolean = false,
     retries: number = 3,
-    delay: number = 1500,
-    debug: boolean = false
+    delay: number = 1500
 ): Promise<boolean> {
-    const button = await page.$(buttonSelector);
-    let isOpen = await page.$(isOpenSelector);
+    const result = await page.evaluate((buttonSelector, isOpenSelector, sectionName, debug, retries, delay) => {
+        return new Promise((resolve) => {
+            const sleep = (time: number) => new Promise(res => setTimeout(res, time));
 
-    // If the section is already open, return true immediately
-    // So far, no sections automatically open upon page load
-    if (isOpen) {
-        debug && console.log(`${sectionName} is already open.`);
-        return true;
-    }
+            const button = document.querySelector(buttonSelector) as HTMLElement;
+            let isOpen = document.querySelector(isOpenSelector);
 
-    // If the button doesn't exist, log and return false
-    // Shouldn't happen on any existing pages
-    if (!button) {
-        console.log(`Button to expand ${sectionName} not found.`);
-        return false;
-    }
-
-    // Attempt to click the button and check the result
-    for (let attempt = 0; attempt < retries; attempt++) {
-        try {
-            await button.click();
-        } catch (error) {
-            debug && console.log(`Failed to click ${sectionName} button on attempt ${attempt + 1}, retrying...`);
-        }
-        try {
-            await page.waitForSelector(isOpenSelector, { timeout: delay });
-            isOpen = await page.$(isOpenSelector);
             if (isOpen) {
-                debug && console.log(`${sectionName} successfully expanded on attempt ${attempt + 1}.`);
-                return true;
+                debug && console.log(`${sectionName} is already open.`);
+                resolve(true);
+                return;
             }
-        } catch (error) {
-            debug && console.log(`Attempt ${attempt + 1} to expand ${sectionName} failed, retrying...`);
-        }
-    }
 
-    // If all attempts fail
-    console.log(`Failed to expand ${sectionName} after maximum retries.`);
-    return false;
+            if (!button) {
+                console.log(`Button to expand ${sectionName} not found.`);
+                resolve(false);
+                return;
+            }
+
+            const attemptToExpand = (attempt: number) => {
+                if (attempt >= retries) {
+                    console.log(`Failed to expand ${sectionName} after maximum retries.`);
+                    resolve(false);
+                    return;
+                }
+
+                button.click();
+                debug && console.log(`Clicked ${sectionName} button on attempt ${attempt + 1}.`);
+
+                sleep(delay).then(() => {
+                    isOpen = document.querySelector(isOpenSelector);
+                    if (isOpen) {
+                        debug && console.log(`${sectionName} successfully expanded on attempt ${attempt + 1}.`);
+                        resolve(true);
+                    } else {
+                        debug && console.log(`Attempt ${attempt + 1} to expand ${sectionName} failed, retrying...`);
+                        attemptToExpand(attempt + 1);
+                    }
+                });
+            };
+
+            attemptToExpand(0);
+        });
+    }, buttonSelector, isOpenSelector, sectionName, debug, retries, delay);
+
+    return result as boolean;
 }
 
 /**
