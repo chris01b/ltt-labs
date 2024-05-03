@@ -1,41 +1,13 @@
 import { Page } from 'puppeteer';
 import { waitForChartToLoad } from '../utils/charts';
-import { PerformanceTestData, Game, Resolution } from '../types/performance';
+import { GameTestResult, GameReport } from '../types/gameReport';
 
-export function parsePerformanceData(jsonData: any): PerformanceTestData[] {
-    let performanceData: PerformanceTestData[];
-    try {
-        performanceData = jsonData.baseTestResult.map((item: any) => ({
-            game: item.friendlyTest as Game,
-            resolution: Resolution[`R${item.friendlyResolution.split('x')[1]}` as keyof typeof Resolution],
-            fpsData: {
-                averageFPS: item.average,
-                onePercentLowFPS: item.p1,
-                minFPS: item.min,
-                maxFPS: item.max,
-                percent99FPS: item.p99,
-                percent95FPS: item.p95,
-                percent5FPS: item.p5
-            }
-        }));
-        if (!performanceData.length) {
-            throw new Error('No performance data found');
-        }
-    } catch (error) {
-        console.error(`Error parsing performance data from response: ${error}`);
-        performanceData = [];
-    }
-    return performanceData;
+// Only keep data for article's GPU
+export function parsePerformanceData(jsonData: GameReport): GameTestResult[] {
+    return jsonData.baseTestResult;
 }
 
-/**
- * Fetches and parses gaming and ray tracing performance data.
- * Assumes that data loading flags have been set in the browser environment.
- *
- * @param {Page} page - The Puppeteer Page instance used to intercept requests.
- * @returns {Promise<[PerformanceTestData[], PerformanceTestData[]]>} A tuple containing arrays of performance data for gaming and ray tracing.
- */
-export async function fetchAndParsePerformanceData(page: Page): Promise<[PerformanceTestData[], PerformanceTestData[]]> {
+export async function getPerformanceData(page: Page): Promise<[GameTestResult[], GameTestResult[]]> {
     try {
 
         await waitForChartToLoad(page, '#gaming-performance', 1500);

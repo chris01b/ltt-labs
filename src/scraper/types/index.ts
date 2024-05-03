@@ -1,4 +1,4 @@
-import { PerformanceTestData } from "./performance";
+import { GameTestResult } from "./gameReport";
 import { ProductivityTestData } from "./productivity";
 import { BenchmarkTestData } from "./synthetics";
 
@@ -72,11 +72,11 @@ export type OemTechnologies = Array<string>;
 
 export interface Performance {
     summary?: string | null;
-    gamingPerformance: PerformanceTestData[] | null;
-    rayTracingPerformance: PerformanceTestData[]| null;
+    gamingPerformance: GameTestResult[] | null;
+    rayTracingPerformance: GameTestResult[]| null;
 }
 
-export interface ProductivityAndPerformance {
+export interface ProductivityAndEfficiency {
     productivityTasks: ProductivityTestData[] | null;
     syntheticScores: BenchmarkTestData[] | null;
 }
@@ -108,7 +108,7 @@ export interface GPUProductDetails {
     hardware: Hardware;
     featuresAndSoftware: FeaturesAndSoftware;
     performance: Performance;
-    productivityAndEfficiency: ProductivityAndPerformance | null;
+    productivityAndEfficiency: ProductivityAndEfficiency | null;
     testConfiguration: TestConfiguration;
     [key: string]: any;
 }

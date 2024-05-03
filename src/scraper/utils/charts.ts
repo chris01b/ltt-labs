@@ -62,7 +62,7 @@ export async function extractPerformanceHydrationData(page: Page): Promise<any> 
  * @returns {Promise<string | null>} - A promise that resolves to the session ID needed for fetching the graph data,
  *                                     or null if no session ID is found.
  */
-export async function extractPerformanceSessionId(page: Page, sectionTitle: string): Promise<string> {
+export async function extractSessionId(page: Page, sectionTitle: string): Promise<string> {
     const performanceObject = await extractPerformanceHydrationData(page);
 
     // Check if the sections exist and contain the expected title

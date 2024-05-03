@@ -1,9 +1,10 @@
 import { Page } from 'puppeteer';
 import { expandSection } from '../utils';
 import { parseSummary } from './summary';
+import { getPerformanceData } from './performanceData';
+import { extractSessionId } from '../utils/charts';
 import { Performance } from '../types';
-import { fetchAndParsePerformanceData } from './performanceData';
-import { extractPerformanceSessionId } from '../utils/charts';
+import { GameReport } from '../types/gameReport';
 
 export async function parsePerformance(page: Page): Promise<Performance> {
     let performance: Performance = {
@@ -16,8 +17,8 @@ export async function parsePerformance(page: Page): Promise<Performance> {
         // Enable request interception before expanding sections
         await page.setRequestInterception(true);
 
-        const gamingSessionId = await extractPerformanceSessionId(page, "Gaming Performance");
-        const rayTracingSessionId = await extractPerformanceSessionId(page, "Ray Tracing Performance");
+        const gamingSessionId = await extractSessionId(page, "Gaming Performance");
+        const rayTracingSessionId = await extractSessionId(page, "Ray Tracing Performance");
 
         page.on('request', interceptedRequest => {
             interceptedRequest.continue();
@@ -26,16 +27,15 @@ export async function parsePerformance(page: Page): Promise<Performance> {
         // Set up response handling
         page.on('response', async response => {
             const url = response.url();
-            const baseChartUrl = 'https://www.lttlabs.com/api/chart/data/gpu/gameReport/';
 
             // Store the JSON directly in the browser context when the response arrives
             if (url.includes(gamingSessionId)) {
-                const jsonData = await response.json();
+                const jsonData: GameReport = await response.json();
                 await page.evaluate((data) => {
                     window.gamingPerformanceData = data;
                 }, jsonData);
             } else if (url.includes(rayTracingSessionId)) {
-                const jsonData = await response.json();
+                const jsonData: GameReport = await response.json();
                 await page.evaluate((data) => {
                     window.rayTracingPerformanceData = data;
                 }, jsonData);
@@ -44,7 +44,6 @@ export async function parsePerformance(page: Page): Promise<Performance> {
 
         // Expanding the performance section on the page to trigger client-side JS
         await expandSection(page, '#performance > div > button', '#performance-summary', "Performance");
-        // await page.waitForSelector('#dynamicElement', { visible: true });
 
         // Wait for both data sets to be loaded
         await page.waitForFunction(() => {
@@ -52,7 +51,7 @@ export async function parsePerformance(page: Page): Promise<Performance> {
         });
 
         // Fetch and parse both gaming and ray tracing performance data after section expansion
-        const [gamingPerformance, rayTracingPerformance] = await fetchAndParsePerformanceData(page);
+        const [gamingPerformance, rayTracingPerformance] = await getPerformanceData(page);
         performance.gamingPerformance = gamingPerformance;
         performance.rayTracingPerformance = rayTracingPerformance;
 

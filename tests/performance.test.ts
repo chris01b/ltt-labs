@@ -31,39 +31,40 @@ describe('Performance Scraper', () => {
         describe('Gaming Performance Content', () => {
             it('should correctly extract gaming performance data for Atomic Heart', async () => {
                 const gamingPerformance = performance?.gamingPerformance;
-                const atomicHeartData = gamingPerformance?.find(data => data.game === "Atomic Heart" && data.resolution === 2160);
+                const atomicHeartData = gamingPerformance?.find(data => data.friendlyTest === "Atomic Heart" && data.settings === "Games-2160");
         
                 expect(atomicHeartData).toBeDefined();
-                expect(atomicHeartData?.fpsData.averageFPS).toEqual(91);
-                expect(atomicHeartData?.fpsData.onePercentLowFPS).toEqual(79);
+                expect(atomicHeartData?.average).toEqual(91);
+                expect(atomicHeartData?.p1).toEqual(79);
             });
 
             it('should correctly extract gaming performance data for Cyberpunk', async () => {
                 const gamingPerformance = performance?.gamingPerformance;
-                const cyberpunkData1080 = gamingPerformance?.find(data => data.game === "Cyberpunk 2077" && data.resolution === 1080);
-                const cyberpunkData2160 = gamingPerformance?.find(data => data.game === "Cyberpunk 2077" && data.resolution === 2160);
+                const cyberpunkData = gamingPerformance?.find(data => data.friendlyTest === "Cyberpunk 2077" && data.settings === "Games-1440");
         
-                expect(cyberpunkData1080).toBeDefined();
-                expect(cyberpunkData1080?.fpsData.averageFPS).toEqual(181);
-                expect(cyberpunkData2160?.fpsData.averageFPS).toEqual(54);
+                expect(cyberpunkData).toBeDefined();
+                expect(cyberpunkData?.average).toEqual(120);
+                expect(cyberpunkData?.p1).toEqual(96);
             });
         });
 
         describe('Ray Tracing Performance Content', () => {
             it('should correctly extract ray tracing performance data for Cyberpunk', async () => {
                 const rayTracingPerformance = performance?.rayTracingPerformance;
-                const cyberpunkData1440 = rayTracingPerformance?.find(data => data.game === "Cyberpunk 2077" && data.resolution === 1440);
+                const f123Data = rayTracingPerformance?.find(data => data.friendlyTest === "F1 23" && data.settings === "Games-1440-Rt");
         
-                expect(cyberpunkData1440).toBeDefined();
-                expect(cyberpunkData1440?.fpsData.averageFPS).toEqual(60);
+                expect(f123Data).toBeDefined();
+                expect(f123Data?.average).toEqual(108);
+                expect(f123Data?.p1).toEqual(97);
             });
 
             it('should correctly extract ray tracing performance data for Returnal', async () => {
                 const rayTracingPerformance = performance?.rayTracingPerformance;
-                const returnalData1440 = rayTracingPerformance?.find(data => data.game === "Returnal" && data.resolution === 1440);
+                const returnalData = rayTracingPerformance?.find(data => data.friendlyTest === "Returnal" && data.settings === "Games-1440-Rt");
         
-                expect(returnalData1440).toBeDefined();
-                expect(returnalData1440?.fpsData.averageFPS).toEqual(114);
+                expect(returnalData).toBeDefined();
+                expect(returnalData?.average).toEqual(114);
+                expect(returnalData?.p1).toEqual(85);
             });
         });
         
