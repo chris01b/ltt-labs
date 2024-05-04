@@ -57,32 +57,26 @@ export async function extractHydrationData(page: Page, hydrationId: string): Pro
 }
 
 
-/**
- * Extracts the session ID for chart request from Next.js hydration data on a page.
- *
- * @param {Page} page - The Puppeteer Page instance.
- * @returns {Promise<string | null>} - A promise that resolves to the session ID needed for fetching the graph data,
- *                                     or null if no session ID is found.
- */
-export async function extractSessionId(page: Page, sectionTitle: string, hydrationId: string): Promise<string> {
+export async function extractSessionIds(page: Page, sectionTitles: string[], hydrationId: string): Promise<Map<string, string[]>> {
     const performanceObject = await extractHydrationData(page, hydrationId);
+    let sessionIdsMap = new Map<string, string[]>();
 
-    // Check if the sections exist and contain the expected title
-    let section: Section | undefined;
-    try {
-        section = performanceObject.category.sections.find((section: Section) => section.title === sectionTitle);
-    } catch (error) {
-        console.error(`Error getting session id for ${sectionTitle}:`, error);
-    }
-
-    if (section && section.content.benchmarkGraphs.length > 0) {
-        const sessionIds = section.content.benchmarkGraphs[0].sessionIds;
-        if (sessionIds && sessionIds.length > 0) {
-            return sessionIds[0].trim() as string; // Return the first session ID found
+    for (let title of sectionTitles) {
+        try {
+            let section: Section = performanceObject.category.sections.find((section: Section) => section.title === title);
+            if (section && section.content.benchmarkGraphs.length > 0) {
+                let ids = section.content.benchmarkGraphs.map(graph => 
+                    graph.sessionIds.map(id => id.trim())  // Trim each session ID here
+                ).flat();
+                sessionIdsMap.set(title, ids);
+            }
+        } catch (error) {
+            console.error(`Error getting session ids for ${title}:`, error);
+            sessionIdsMap.set(title, []);  // Continue with empty array on error
         }
     }
 
-    throw new Error(`Session ID not found for ${sectionTitle}`);
+    return sessionIdsMap;
 }
 
 /**

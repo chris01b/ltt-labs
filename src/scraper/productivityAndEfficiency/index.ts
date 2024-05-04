@@ -1,70 +1,63 @@
 import { Page } from 'puppeteer';
 import { expandSection } from '../utils';
 import { getProductivityAndEfficiencyData } from './productivityAndEfficiencyData';
-import { extractSessionId } from '../utils/charts';
+import { extractSessionIds } from '../utils/charts';
 import { ProductivityAndEfficiency } from '../types';
 import { NonGameReport } from '../types/nonGameReport';
 
 export async function parseProductivityAndEfficiency(page: Page): Promise<ProductivityAndEfficiency> {
-    let productivtyAndEfficiency: ProductivityAndEfficiency = {
+    let productivityAndEfficiency: ProductivityAndEfficiency = {
         productivityTasks: null,
         syntheticScores: null
     };
 
     try {
-        // Enable request interception before expanding sections
+        // Enable request interception to handle responses dynamically
         await page.setRequestInterception(true);
 
-        const productivitySessionId = await extractSessionId(page, "Productivity", "productivity-and-efficiency");
-        const syntheticsSessionId = await extractSessionId(page, "Synthetics", "productivity-and-efficiency");
+        // Extract session IDs for each section
+        const sessionIdsMap = await extractSessionIds(page, ["Productivity", "Synthetics"], "productivity-and-efficiency");
+        console.log('Session IDs:', sessionIdsMap);
 
         page.on('request', interceptedRequest => {
             interceptedRequest.continue();
         });
 
-        // Set up response handling
         page.on('response', async response => {
             const url = response.url();
-
-            // Store the JSON directly in the browser context when the response arrives
-            if (url === `https://www.lttlabs.com/api/chart/data/gpu/nonGameReport/${productivitySessionId}`) {
-                console.log('productivitySessionId response')
-                const jsonData = await response.json();
-                await page.evaluate((data) => {
-                    window.productivityTaskData = data;
-                }, jsonData);
-            } else if (url === `https://www.lttlabs.com/api/chart/data/gpu/nonGameReport/${syntheticsSessionId}`) {
-                console.log('syntheticsSessionId response')
-                const jsonData = await response.json();
-                await page.evaluate((data) => {
-                    window.syntheticScoreData = data;
-                }, jsonData);
+            for (const [key, ids] of sessionIdsMap) {
+                ids.forEach(async id => {
+                    if (url === `https://www.lttlabs.com/api/chart/data/gpu/nonGameReport/${id}`) {
+                        console.log('Response received for:', key, id);
+                        const jsonData: NonGameReport = await response.json();
+                        await page.evaluate((key, data) => {
+                            window[key] = window[key] || [];
+                            window[key].push(data);
+                        }, key, jsonData);
+                        console.log('Response evaluated')
+                    }
+                });
             }
         });
 
         await expandSection(page, '#productivity-and-efficiency > div > button:not([aria-label])', '#productivity-efficiency-summary', "Productivity & Efficiency", true);
 
-        // Wait for both data sets to be loaded
-        await page.waitForFunction(() => {
-            return window.productivityTaskData && window.syntheticScoreData;
-        });
+        // Wait for data to be loaded into the browser context
+        await page.waitForFunction((sessionIdsMap) => {
+            const allKeysLoadedCorrectly = Object.entries(sessionIdsMap).every(([key, ids]) => {
+                return window[key] && window[key].length === ids.length; // Check both existence and length
+            });
+            return allKeysLoadedCorrectly;
+        }, {}, sessionIdsMap);
 
-        // Fetch and parse productivity & efficiency data after section expansion
-        const [productivityTasks, syntheticScores] = await getProductivityAndEfficiencyData(page);
-        productivtyAndEfficiency.productivityTasks = productivityTasks;
-        productivtyAndEfficiency.syntheticScores = syntheticScores;
+        // Fetch and parse the data after section expansion
+        productivityAndEfficiency = await getProductivityAndEfficiencyData(page, sessionIdsMap);
 
-        // Validate data to ensure all required parts are parsed correctly
-        if (!productivityTasks || !syntheticScores) {
-            throw new Error("Failed to parse all productivity & efficiency components successfully.");
-        }
-
-        return productivtyAndEfficiency;
+        return productivityAndEfficiency;
     } catch (error) {
         console.error(`Error during productivity & efficiency parsing and aggregation: ${error}`);
-        return productivtyAndEfficiency;  // Return the partially parsed productivity & efficiency data, if any
+        return productivityAndEfficiency;  // Return the partially parsed data, if any
     } finally {
-        // Disable request interception after processing is complete
         await page.setRequestInterception(false);
     }
 }
