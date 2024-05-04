@@ -2,7 +2,7 @@ import { Page } from 'puppeteer';
 import { expandSection } from '../utils';
 import { parseSummary } from './summary';
 import { getPerformanceData } from './performanceData';
-import { extractSessionId } from '../utils/charts';
+import { extractSessionIds } from '../utils/charts';
 import { Performance } from '../types';
 import { GameReport } from '../types/gameReport';
 
@@ -14,44 +14,43 @@ export async function parsePerformance(page: Page): Promise<Performance> {
     };
 
     try {
-        // Enable request interception before expanding sections
+        // Enable request interception to handle responses dynamically
         await page.setRequestInterception(true);
 
-        const gamingSessionId = await extractSessionId(page, "Gaming Performance", "performance");
-        const rayTracingSessionId = await extractSessionId(page, "Ray Tracing Performance", "performance");
+        // Extract session IDs for both gaming and ray tracing sections
+        const sessionIdsMap = await extractSessionIds(page, ["Gaming Performance", "Ray Tracing Performance"], "performance");
 
         page.on('request', interceptedRequest => {
             interceptedRequest.continue();
         });
 
-        // Set up response handling
         page.on('response', async response => {
             const url = response.url();
-
-            // Store the JSON directly in the browser context when the response arrives
-            if (url.includes(gamingSessionId)) {
-                const jsonData: GameReport = await response.json();
-                await page.evaluate((data) => {
-                    window.gamingPerformanceData = data;
-                }, jsonData);
-            } else if (url.includes(rayTracingSessionId)) {
-                const jsonData: GameReport = await response.json();
-                await page.evaluate((data) => {
-                    window.rayTracingPerformanceData = data;
-                }, jsonData);
-            }
+            sessionIdsMap.forEach((ids, key) => {
+                ids.forEach(async id => {
+                    if (url === `https://www.lttlabs.com/api/chart/data/gpu/gameReport/${id}`) {
+                        const jsonData: GameReport = await response.json();
+                        await page.evaluate((key, data) => {
+                            window[key] = window[key] || [];
+                            window[key].push(data);
+                        }, key, jsonData);
+                    }
+                });
+            });
         });
 
         // Expanding the performance section on the page to trigger client-side JS
         await expandSection(page, '#performance > div > button', '#performance-summary', "Performance");
 
-        // Wait for both data sets to be loaded
-        await page.waitForFunction(() => {
-            return window.gamingPerformanceData && window.rayTracingPerformanceData;
-        });
+        // Wait for data to be loaded into the browser context
+        await page.waitForFunction((sessionIdsMap) => {
+            return Object.entries(sessionIdsMap).every(([key, ids]) => {
+                return window[key] && window[key].length === ids.length;
+            });
+        }, {}, sessionIdsMap);
 
         // Fetch and parse both gaming and ray tracing performance data after section expansion
-        const [gamingPerformance, rayTracingPerformance] = await getPerformanceData(page);
+        const [gamingPerformance, rayTracingPerformance] = await getPerformanceData(page, sessionIdsMap);
         performance.gamingPerformance = gamingPerformance;
         performance.rayTracingPerformance = rayTracingPerformance;
 

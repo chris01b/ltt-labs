@@ -18,19 +18,17 @@ describe('Performance Scraper', () => {
         });
 
         describe('Summary Content', () => {
-            describe('Performance Summary', () => {
-                it('should correctly extract the performance summary', async () => {
-                    const performanceSummary = performance?.summary;
-                    expect(performanceSummary).toBeTruthy();
-                    expect(typeof performanceSummary).toBe('string');
-                    expect(performanceSummary).toContain('RTX 4080');  // Check for specific expected content in the summary
-                });
+            it('should correctly extract the performance summary', async () => {
+                const performanceSummary = performance?.summary;
+                expect(performanceSummary).toBeTruthy();
+                expect(typeof performanceSummary).toBe('string');
+                expect(performanceSummary).toContain('RTX 4080');  // Check for specific expected content in the summary
             });
         });
 
         describe('Gaming Performance Content', () => {
             it('should correctly extract gaming performance data for Atomic Heart', async () => {
-                const gamingPerformance = performance?.gamingPerformance;
+                const gamingPerformance = performance?.gamingPerformance?.flatMap(report => report.baseTestResult);
                 const atomicHeartData = gamingPerformance?.find(data => data.friendlyTest === "Atomic Heart" && data.settings === "Games-2160");
         
                 expect(atomicHeartData).toBeDefined();
@@ -39,7 +37,7 @@ describe('Performance Scraper', () => {
             });
 
             it('should correctly extract gaming performance data for Cyberpunk', async () => {
-                const gamingPerformance = performance?.gamingPerformance;
+                const gamingPerformance = performance?.gamingPerformance?.flatMap(report => report.baseTestResult);
                 const cyberpunkData = gamingPerformance?.find(data => data.friendlyTest === "Cyberpunk 2077" && data.settings === "Games-1440");
         
                 expect(cyberpunkData).toBeDefined();
@@ -50,7 +48,7 @@ describe('Performance Scraper', () => {
 
         describe('Ray Tracing Performance Content', () => {
             it('should correctly extract ray tracing performance data for Cyberpunk', async () => {
-                const rayTracingPerformance = performance?.rayTracingPerformance;
+                const rayTracingPerformance = performance?.rayTracingPerformance?.flatMap(report => report.baseTestResult);
                 const f123Data = rayTracingPerformance?.find(data => data.friendlyTest === "F1 23" && data.settings === "Games-1440-Rt");
         
                 expect(f123Data).toBeDefined();
@@ -59,7 +57,7 @@ describe('Performance Scraper', () => {
             });
 
             it('should correctly extract ray tracing performance data for Returnal', async () => {
-                const rayTracingPerformance = performance?.rayTracingPerformance;
+                const rayTracingPerformance = performance?.rayTracingPerformance?.flatMap(report => report.baseTestResult);
                 const returnalData = rayTracingPerformance?.find(data => data.friendlyTest === "Returnal" && data.settings === "Games-1440-Rt");
         
                 expect(returnalData).toBeDefined();
@@ -67,7 +65,6 @@ describe('Performance Scraper', () => {
                 expect(returnalData?.p1).toEqual(85);
             });
         });
-        
     });
 
     describe('Invalid GPU Article', () => {
@@ -75,14 +72,12 @@ describe('Performance Scraper', () => {
 
         beforeAll(async () => {
             const invalidPage = await browser.newPage();
-            const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'
-            await invalidPage.setUserAgent(userAgent);
+            await invalidPage.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36');
             await invalidPage.setJavaScriptEnabled(true);
             await invalidPage.goto('https://www.lttlabs.com/articles/gpu/invalid-gpu', { waitUntil: 'networkidle2' });
             nullPerformance = await parsePerformance(invalidPage);
         });
 
-        // Summary
         it('should handle the absence of the button or summary content gracefully', async () => {
             expect(nullPerformance?.summary).toBeNull();
         });

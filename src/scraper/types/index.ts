@@ -1,4 +1,4 @@
-import { GameTestResult } from "./gameReport";
+import { GameReport } from "./gameReport";
 import { NonGameReport } from "./nonGameReport";
 
 export interface GPUData {
@@ -71,8 +71,8 @@ export type OemTechnologies = Array<string>;
 
 export interface Performance {
     summary?: string | null;
-    gamingPerformance: GameTestResult[] | null;
-    rayTracingPerformance: GameTestResult[]| null;
+    gamingPerformance: GameReport[] | null;
+    rayTracingPerformance: GameReport[]| null;
 }
 
 export interface ProductivityAndEfficiency {

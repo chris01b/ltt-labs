@@ -1,39 +1,30 @@
 import { Page } from 'puppeteer';
-import { waitForChartToLoad } from '../utils/charts';
-import { GameTestResult, GameReport } from '../types/gameReport';
+import { GameReport } from '../types/gameReport';
 
-// Only keep data for article's GPU
-export function parsePerformanceData(jsonData: GameReport): GameTestResult[] {
-    return jsonData.baseTestResult;
-}
+/**
+ * Fetches and processes performance data for gaming and ray tracing based on stored session IDs.
+ *
+ * @param {Page} page - The Puppeteer Page instance.
+ * @param {Map<string, string[]>} sessionIdsMap - A map of performance categories to their respective session IDs.
+ * @returns {Promise<[GameReport[], GameReport[]]>} - A tuple containing arrays of gaming and ray tracing performance data.
+ */
+export async function getPerformanceData(page: Page, sessionIdsMap: Map<string, string[]>): Promise<[GameReport[], GameReport[]]> {
+    let gamingPerformance: GameReport[] = [];
+    let rayTracingPerformance: GameReport[] = [];
 
-export async function getPerformanceData(page: Page): Promise<[GameTestResult[], GameTestResult[]]> {
-    try {
+    // Process each category and fetch the corresponding data from the window object.
+    for (const [key, ids] of sessionIdsMap) {
+        const data: GameReport[] = await page.evaluate((key) => {
+            return window[key] ? window[key] : [];
+        }, key);
 
-        await waitForChartToLoad(page, '#gaming-performance', 1500);
-
-        // Retrieve the raw data directly from the browser context
-        const rawGamingData = await page.evaluate(() => {
-            return window.gamingPerformanceData ? JSON.stringify(window.gamingPerformanceData) : null;
-        });
-
-        await waitForChartToLoad(page, '#ray-tracing-performance', 1500);
-
-        const rawRayTracingData = await page.evaluate(() => {
-            return window.rayTracingPerformanceData ? JSON.stringify(window.rayTracingPerformanceData) : null;
-        });
-
-        // Parse the data in the Node.js context
-        const gamingPerformance = rawGamingData ? parsePerformanceData(JSON.parse(rawGamingData)) : [];
-        const rayTracingPerformance = rawRayTracingData ? parsePerformanceData(JSON.parse(rawRayTracingData)) : [];
-
-        if (gamingPerformance.length === 0 || rayTracingPerformance.length === 0) {
-            throw new Error("Parsed performance data is incomplete or incorrect.");
+        // Assign the fetched data to the correct category.
+        if (key === "Gaming Performance") {
+            gamingPerformance = data;
+        } else if (key === "Ray Tracing Performance") {
+            rayTracingPerformance = data;
         }
-
-        return [gamingPerformance, rayTracingPerformance];
-    } catch (error) {
-        console.error(`Error fetching or parsing performance data: ${error}`);
-        throw new Error(`Performance data processing failed: ${error instanceof Error ? error.message : "unknown error"}`);
     }
+
+    return [gamingPerformance, rayTracingPerformance];
 }
